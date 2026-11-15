@@ -1,8 +1,9 @@
 package api.dto;
 
-/**
- * DTO chưa có trong thiết kế VP (CLAUDE.md mục 3.3). Giai đoạn 1: khung tối thiểu để biên dịch;
- * các trường được bổ sung khi hiện thực service/controller.
- */
-public class LoginRequest {
+import jakarta.validation.constraints.NotBlank;
+
+/** identifier: email hoặc SĐT (khách), username (nhân viên). */
+public record LoginRequest(
+		@NotBlank(message = "Vui lòng nhập tài khoản") String identifier,
+		@NotBlank(message = "Vui lòng nhập mật khẩu") String password) {
 }

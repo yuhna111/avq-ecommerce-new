@@ -1,8 +1,5 @@
 package infra;
 
-/**
- * Kiểu hỗ trợ của tầng infra, chưa có trong thiết kế VP. Đặt trong package infra (không phải api.dto)
- * để giữ chiều phụ thuộc infra -> domain (Hình 4.6). Giai đoạn 1: khung tối thiểu.
- */
-public class AiSizeResult {
+/** Kết quả mô hình AI (kiểu hỗ trợ của infra, bổ sung). Ngưỡng tin cậy 0,6 (Chương 3). */
+public record AiSizeResult(String size, double confidence, String modelVersion) {
 }

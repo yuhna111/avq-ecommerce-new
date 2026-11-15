@@ -1,8 +1,8 @@
 package infra;
 
-/**
- * Kiểu hỗ trợ của tầng infra, chưa có trong thiết kế VP. Đặt trong package infra (không phải api.dto)
- * để giữ chiều phụ thuộc infra -> domain (Hình 4.6). Giai đoạn 1: khung tối thiểu.
- */
-public class SizeFeatures {
+import domain.FitPref;
+import domain.FitType;
+
+/** Đầu vào mô hình gợi ý size (kiểu hỗ trợ của infra, bổ sung). */
+public record SizeFeatures(Long productId, int heightCm, int weightKg, FitPref fitPref, FitType fitType) {
 }

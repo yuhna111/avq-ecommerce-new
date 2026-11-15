@@ -1,8 +1,11 @@
 package api.dto;
 
-/**
- * DTO chưa có trong thiết kế VP (CLAUDE.md mục 3.3). Giai đoạn 1: khung tối thiểu để biên dịch;
- * các trường được bổ sung khi hiện thực service/controller.
- */
-public class CartDto {
+import java.math.BigDecimal;
+import java.util.List;
+
+public record CartDto(Long cartId, List<CartLineDto> items, BigDecimal subtotal, int totalQuantity) {
+
+	public record CartLineDto(Long variantId, Long productId, String productName, String size, String color,
+			String image, BigDecimal unitPrice, int quantity, BigDecimal lineTotal, int stockQty) {
+	}
 }

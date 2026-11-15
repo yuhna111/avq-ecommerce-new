@@ -1,8 +1,5 @@
 package api.dto;
 
-/**
- * DTO chưa có trong thiết kế VP (CLAUDE.md mục 3.3). Giai đoạn 1: khung tối thiểu để biên dịch;
- * các trường được bổ sung khi hiện thực service/controller.
- */
-public class TokenDto {
+/** Kết quả đăng nhập/đăng ký: JWT HS256, hết hạn sau 30 phút (NFR). */
+public record TokenDto(String token, String role, Long userId, String fullName, long expiresInMinutes) {
 }

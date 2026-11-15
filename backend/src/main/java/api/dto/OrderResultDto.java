@@ -1,8 +1,11 @@
 package api.dto;
 
-/**
- * DTO chưa có trong thiết kế VP (CLAUDE.md mục 3.3). Giai đoạn 1: khung tối thiểu để biên dịch;
- * các trường được bổ sung khi hiện thực service/controller.
- */
-public class OrderResultDto {
+import domain.OrderStatus;
+import domain.PaymentMethod;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+/** paymentUrl chỉ có với đơn ONLINE (BR10). */
+public record OrderResultDto(String orderCode, OrderStatus status, BigDecimal total, PaymentMethod paymentMethod,
+		String paymentUrl, LocalDateTime expiresAt) {
 }

@@ -1,8 +1,5 @@
 package api.dto;
 
-/**
- * DTO chưa có trong thiết kế VP (CLAUDE.md mục 3.3). Giai đoạn 1: khung tối thiểu để biên dịch;
- * các trường được bổ sung khi hiện thực service/controller.
- */
-public class SizeAdviceDto {
+/** size = null khi sản phẩm chưa có bảng size (message hướng dẫn liên hệ cửa hàng). */
+public record SizeAdviceDto(String size, String message, boolean fallbackUsed, String source) {
 }

@@ -1,8 +1,5 @@
 package api.dto;
 
-/**
- * DTO chưa có trong thiết kế VP (CLAUDE.md mục 3.3). Giai đoạn 1: khung tối thiểu để biên dịch;
- * các trường được bổ sung khi hiện thực service/controller.
- */
-public class IpnResponse {
+/** Phản hồi theo chuẩn IPN của VNPay: RspCode "00" | "01" | "02" | "04" | "97" (DT-05). */
+public record IpnResponse(String RspCode, String Message) {
 }

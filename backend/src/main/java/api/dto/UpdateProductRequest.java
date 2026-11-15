@@ -1,8 +1,12 @@
 package api.dto;
 
-/**
- * DTO chưa có trong thiết kế VP (CLAUDE.md mục 3.3). Giai đoạn 1: khung tối thiểu để biên dịch;
- * các trường được bổ sung khi hiện thực service/controller.
- */
-public class UpdateProductRequest {
+import jakarta.validation.constraints.DecimalMin;
+import java.math.BigDecimal;
+
+/** Sửa giá, mô tả, chất liệu, ẩn/hiện. Trường null = giữ nguyên. */
+public record UpdateProductRequest(
+		@DecimalMin(value = "1", message = "Giá bán phải lớn hơn 0") BigDecimal price,
+		String description,
+		String material,
+		Boolean visible) {
 }

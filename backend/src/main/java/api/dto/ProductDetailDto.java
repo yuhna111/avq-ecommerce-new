@@ -1,8 +1,13 @@
 package api.dto;
 
-/**
- * DTO chưa có trong thiết kế VP (CLAUDE.md mục 3.3). Giai đoạn 1: khung tối thiểu để biên dịch;
- * các trường được bổ sung khi hiện thực service/controller.
- */
-public class ProductDetailDto {
+import domain.FitType;
+import java.math.BigDecimal;
+import java.util.List;
+
+public record ProductDetailDto(Long id, String name, String description, String material, BigDecimal price,
+		boolean visible, FitType fitType, CategoryDto category, List<String> images, List<VariantDto> variants,
+		boolean hasSizeChart) {
+
+	public record VariantDto(Long id, String sku, String size, String color, int stockQty) {
+	}
 }
