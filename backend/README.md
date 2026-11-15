@@ -1,7 +1,18 @@
-# backend/ — Mã nguồn phía máy chủ
+# backend/ — Spring Boot
 
-**Chứa gì:** (hiện để trống) mã nguồn backend Java của website AVQ Clothing.
+Mã nguồn backend AVQ Clothing, hiện thực theo thiết kế Visual Paradigm (xem `../CLAUDE.md`).
 
-**Ai đặt file vào:** Claude Code sẽ sinh mã ở đây **sau khi** `CLAUDE.md` có hướng dẫn đầy đủ. Tôi rà soát và chỉnh sửa khi cần.
+| Package | Nội dung | Nguồn gốc |
+|---|---|---|
+| `api` | 9 controller REST | VP sinh, viết tiếp |
+| `api.dto` | DTO/Request (record) | Bổ sung (VP chưa có) |
+| `service` | 12 lớp nghiệp vụ | VP sinh, viết tiếp; + `BusinessException`, `PaymentCallbackException`, `DtoMapper` (hỗ trợ) |
+| `infra` | JWT, cổng thanh toán, client AI | VP sinh, viết tiếp; + `MockPaymentGatewayClient`, các kiểu hỗ trợ |
+| `repository` | 13 repository Spring Data JPA | VP sinh, viết tiếp; + `ProductFilter` |
+| `domain` | 18 entity + 7 enum | VP sinh, viết tiếp; + `OrderItemId`, `CartItemId` (khóa ghép) |
+| `app` | `AvqApplication`, cấu hình bảo mật, xử lý lỗi | Bổ sung |
 
-**Quy tắc:** Mã ở đây được xây dựng dựa trên các đầu vào trong `vp/generated-java/` và `db/` — các đầu vào đó **không sửa tay**; mọi điều chỉnh phải thực hiện trong `backend/` hoặc trong mô hình VP.
+Chạy: `.\mvnw.cmd spring-boot:run` (cần `src/main/resources/application-local.yml`, xem file mẫu `application-local.example.yml`).
+Kiểm thử: `.\mvnw.cmd test` — chạy trên CSDL `avq_db_vp`, mỗi test tự rollback.
+
+**Quy tắc:** các file đầu vào trong `../vp/` và `../db/` **không sửa tay**; mọi điều chỉnh làm ở đây và ghi vào `../docs/code-design-mapping.md`.

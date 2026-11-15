@@ -1,7 +1,9 @@
-# frontend/ — Giao diện người dùng
+# frontend/ — Giao diện người dùng (React 18 + Vite)
 
-**Chứa gì:** (hiện để trống) mã nguồn giao diện website AVQ Clothing.
+Giao diện tiếng Việt cho khách hàng và nhân viên AVQ Clothing.
 
-**Ai đặt file vào:** Claude Code sẽ sinh mã ở đây **sau khi** `CLAUDE.md` có hướng dẫn đầy đủ. Tôi rà soát và chỉnh sửa khi cần.
+- `npm install` rồi `npm run dev` → http://localhost:5173 (proxy `/api` sang backend cổng 8080).
+- `src/pages/`: trang khách (`ProductList`, `ProductDetail`, `Cart`, `Checkout`, `MockPay`, `MyOrders`, `Auth`) và trang nhân viên (`StaffOrders`, `StaffProducts`).
+- `public/images/`: ảnh minh họa sản phẩm (SVG) dùng cho dữ liệu demo `../db/seed/demo_data.sql`.
 
-**Quy tắc:** Không đặt file đầu vào của VP ở đây. Các file trong `vp/` và `db/` **không sửa tay**.
+**Quy tắc:** không đặt file đầu vào của VP ở đây. Các file trong `vp/` và `db/` **không sửa tay**.
