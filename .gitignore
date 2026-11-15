@@ -28,3 +28,6 @@ Thumbs.db
 !vp/**
 !db/
 !db/**
+
+# ===== Cấu hình cục bộ chứa mật khẩu (dùng file mẫu application-local.example.yml) =====
+backend/src/main/resources/application-local.yml
