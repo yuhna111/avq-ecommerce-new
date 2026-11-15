@@ -1,0 +1,30 @@
+# ===== Java / Maven =====
+target/
+*.class
+*.log
+
+# ===== Node =====
+node_modules/
+dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ===== IDE =====
+.idea/
+.vscode/
+*.iml
+
+# ===== Biến môi trường =====
+.env
+
+# ===== File hệ điều hành =====
+.DS_Store
+Thumbs.db
+
+# ===== Đầu vào từ Visual Paradigm: LUÔN theo dõi =====
+# Không được bỏ qua bất kỳ file nào trong vp/ và db/
+!vp/
+!vp/**
+!db/
+!db/**
