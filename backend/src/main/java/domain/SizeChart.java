@@ -33,7 +33,8 @@ public class SizeChart {
 	private Product product;
 
 	public boolean contains(int heightCm, int weightKg) {
-		throw new UnsupportedOperationException();
+		return heightCm >= this.heightMin && heightCm <= this.heightMax
+				&& weightKg >= this.weightMin && weightKg <= this.weightMax;
 	}
 
 	// ===== Getter/Setter (bổ sung - CLAUDE.md 3.3) =====

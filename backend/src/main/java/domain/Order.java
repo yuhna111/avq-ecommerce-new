@@ -5,6 +5,7 @@ import java.util.List;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Set;
+import java.util.HashSet;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -68,15 +69,33 @@ public class Order {
 	private List<OrderItem> items = new ArrayList<OrderItem>();
 
 	public void addItem(ProductVariant variant, int qty) {
-		throw new UnsupportedOperationException();
+		// BR08: chốt giá hiện hành và thông tin biến thể vào order_items
+		OrderItem item = new OrderItem();
+		item.setOrder(this);
+		item.setVariant(variant);
+		item.setProductName(variant.getProduct().getName());
+		item.setSize(variant.getSize());
+		item.setColor(variant.getColor());
+		item.setUnitPrice(variant.getProduct().getPrice());
+		item.setQuantity(qty);
+		this.items.add(item);
 	}
 
 	public void recalculate() {
-		throw new UnsupportedOperationException();
+		// DB-R4: total = subtotal + shipping_fee
+		this.subtotal = this.items.stream().map(OrderItem::lineTotal).reduce(BigDecimal.ZERO, BigDecimal::add);
+		if (this.shippingFee == null) {
+			this.shippingFee = BigDecimal.ZERO;
+		}
+		this.total = this.subtotal.add(this.shippingFee);
 	}
 
 	public Set<Long> getVariantIds() {
-		throw new UnsupportedOperationException();
+		Set<Long> ids = new HashSet<Long>();
+		for (OrderItem item : this.items) {
+			ids.add(item.getVariant().getId());
+		}
+		return ids;
 	}
 
 	// ===== Getter/Setter (bổ sung - CLAUDE.md 3.3) =====

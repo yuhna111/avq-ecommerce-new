@@ -40,7 +40,10 @@ public class BodyProfile {
 	private Customer customer;
 
 	public void update(int heightCm, int weightKg, FitPref fitPref) {
-		throw new UnsupportedOperationException();
+		this.heightCm = heightCm;
+		this.weightKg = weightKg;
+		this.fitPref = fitPref;
+		this.consentAt = LocalDateTime.now();
 	}
 
 	// ===== Getter/Setter (bổ sung - CLAUDE.md 3.3) =====

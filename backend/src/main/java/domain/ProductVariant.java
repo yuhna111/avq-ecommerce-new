@@ -36,11 +36,15 @@ public class ProductVariant {
 	private Product product;
 
 	public void setStock(int qty) {
-		throw new UnsupportedOperationException();
+		// BR06: tồn kho là số nguyên không âm
+		if (qty < 0) {
+			throw new IllegalArgumentException("Tồn kho không được âm");
+		}
+		this.stockQty = qty;
 	}
 
 	public boolean isAvailable(int qty) {
-		throw new UnsupportedOperationException();
+		return qty > 0 && this.stockQty >= qty;
 	}
 
 	// ===== Getter/Setter (bổ sung - CLAUDE.md 3.3) =====

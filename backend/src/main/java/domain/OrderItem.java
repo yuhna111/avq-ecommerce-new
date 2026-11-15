@@ -40,7 +40,7 @@ public class OrderItem {
 	private ProductVariant variant;
 
 	public BigDecimal lineTotal() {
-		throw new UnsupportedOperationException();
+		return this.unitPrice.multiply(BigDecimal.valueOf(this.quantity));
 	}
 
 	// ===== Getter/Setter (bổ sung - CLAUDE.md 3.3) =====

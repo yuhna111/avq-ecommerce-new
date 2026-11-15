@@ -24,7 +24,8 @@ public class Customer extends User {
 	private List<Address> addresses = new ArrayList<Address>();
 
 	public void addAddress(Address address) {
-		throw new UnsupportedOperationException();
+		address.setCustomer(this);
+		this.addresses.add(address);
 	}
 
 	// ===== Getter/Setter (bổ sung - CLAUDE.md 3.3) =====

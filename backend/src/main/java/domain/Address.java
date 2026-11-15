@@ -31,11 +31,12 @@ public class Address {
 	private Customer customer;
 
 	public void setDefault(boolean isDefault) {
-		throw new UnsupportedOperationException();
+		this.isDefault = isDefault;
 	}
 
 	public String toSnapshot() {
-		throw new UnsupportedOperationException();
+		// Ảnh chụp địa chỉ ghi vào orders.shipping_address (không tham chiếu bảng addresses)
+		return this.addressLine;
 	}
 
 	// ===== Getter/Setter (bổ sung - CLAUDE.md 3.3) =====

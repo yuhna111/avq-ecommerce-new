@@ -50,7 +50,19 @@ public class Product {
 	private List<ProductImage> image = new ArrayList<ProductImage>();
 
 	public void updateInfo(BigDecimal price, String description, String material) {
-		throw new UnsupportedOperationException();
+		// Tham số null = giữ nguyên. BR06: giá > 0
+		if (price != null) {
+			if (price.signum() <= 0) {
+				throw new IllegalArgumentException("Giá bán phải lớn hơn 0");
+			}
+			this.price = price;
+		}
+		if (description != null) {
+			this.description = description;
+		}
+		if (material != null) {
+			this.material = material;
+		}
 	}
 
 	public void setVisible(boolean visible) {
@@ -58,7 +70,13 @@ public class Product {
 	}
 
 	public ProductVariant addVariant(String size, String color, String sku) {
-		throw new UnsupportedOperationException();
+		ProductVariant variant = new ProductVariant();
+		variant.setProduct(this);
+		variant.setSize(size);
+		variant.setColor(color);
+		variant.setSku(sku);
+		this.variants.add(variant);
+		return variant;
 	}
 
 	// ===== Getter/Setter (bổ sung - CLAUDE.md 3.3) =====

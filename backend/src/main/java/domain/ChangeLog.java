@@ -39,7 +39,16 @@ public class ChangeLog {
 	private ProductVariant productVariant;
 
 	public static ChangeLog of(Staff staff, ProductVariant variant, String field, String oldValue, String newValue) {
-		throw new UnsupportedOperationException();
+		// FR31. Khi thay đổi cấp sản phẩm (variant = null), service gán product bằng setProduct.
+		ChangeLog log = new ChangeLog();
+		log.staff = staff;
+		log.productVariant = variant;
+		log.product = variant != null ? variant.getProduct() : null;
+		log.fieldName = field;
+		log.oldValue = oldValue;
+		log.newValue = newValue;
+		log.changedAt = LocalDateTime.now();
+		return log;
 	}
 
 	// ===== Getter (bổ sung - CLAUDE.md 3.3) =====
@@ -70,6 +79,10 @@ public class ChangeLog {
 
 	public Staff getStaff() {
 		return staff;
+	}
+
+	public void setProduct(Product product) {
+		this.product = product;
 	}
 
 	public ProductVariant getProductVariant() {

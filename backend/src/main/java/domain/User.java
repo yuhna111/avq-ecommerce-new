@@ -14,6 +14,10 @@ import jakarta.persistence.MappedSuperclass;
  */
 @MappedSuperclass
 public abstract class User {
+	/** BR16 (bổ sung hằng số, private) */
+	private static final int MAX_FAILED_LOGIN = 5;
+	private static final int LOCK_MINUTES = 15;
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -27,15 +31,21 @@ public abstract class User {
 	private LocalDateTime lockedUntil;
 
 	public void recordFailedLogin(LocalDateTime now) {
-		throw new UnsupportedOperationException();
+		// BR16: sai 5 lần liên tiếp -> khóa 15 phút; bộ đếm bắt đầu lại sau khi khóa.
+		this.failedLoginCount++;
+		if (this.failedLoginCount >= MAX_FAILED_LOGIN) {
+			this.lockedUntil = now.plusMinutes(LOCK_MINUTES);
+			this.failedLoginCount = 0;
+		}
 	}
 
 	public void resetFailedCount() {
-		throw new UnsupportedOperationException();
+		this.failedLoginCount = 0;
+		this.lockedUntil = null;
 	}
 
 	public boolean isLocked(LocalDateTime now) {
-		throw new UnsupportedOperationException();
+		return this.lockedUntil != null && now.isBefore(this.lockedUntil);
 	}
 
 	// ===== Getter/Setter (bổ sung - CLAUDE.md 3.3) =====

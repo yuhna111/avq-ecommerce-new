@@ -2,8 +2,11 @@ package repository;
 
 import domain.ChangeLog;
 import java.util.List;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface ProductChangeLogRepository {
+// Bổ sung: extends JpaRepository (CLAUDE.md 3.4); các phương thức VP giữ nguyên,
+// Spring Data sinh truy vấn theo tên phương thức.
+public interface ProductChangeLogRepository extends JpaRepository<ChangeLog, Long> {
 
 	public List<ChangeLog> findByProductIdOrderByChangedAtDesc(Long productId);
 }

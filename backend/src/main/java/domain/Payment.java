@@ -41,11 +41,17 @@ public class Payment {
 	private Order order;
 
 	public void markResult(boolean success, String txnRef) {
-		throw new UnsupportedOperationException();
+		this.status = success ? PaymentStatus.THANH_CONG : PaymentStatus.THAT_BAI;
+		this.txnRef = txnRef;
+		if (success) {
+			this.paidAt = LocalDateTime.now();
+		}
 	}
 
 	public void markMismatch(String txnRef) {
-		throw new UnsupportedOperationException();
+		// DT-05: số tiền cổng báo khác tổng đơn
+		this.status = PaymentStatus.SAI_LECH;
+		this.txnRef = txnRef;
 	}
 
 	// ===== Getter/Setter (bổ sung - CLAUDE.md 3.3) =====

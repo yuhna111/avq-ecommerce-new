@@ -37,19 +37,34 @@ public class Cart {
 	private List<CartItem> items = new ArrayList<CartItem>();
 
 	public Optional<CartItem> findItem(Long variantId) {
-		throw new UnsupportedOperationException();
+		return this.items.stream()
+				.filter(i -> i.getVariant().getId().equals(variantId))
+				.findFirst();
 	}
 
 	public CartItem addOrIncrease(ProductVariant variant, int qty) {
-		throw new UnsupportedOperationException();
+		// BR07: mỗi biến thể một dòng; thêm lại thì cộng dồn
+		Optional<CartItem> existing = findItem(variant.getId());
+		if (existing.isPresent()) {
+			CartItem item = existing.get();
+			item.changeQty(item.getQuantity() + qty);
+			return item;
+		}
+		CartItem item = new CartItem();
+		item.setCart(this);
+		item.setVariant(variant);
+		item.setAddedAt(LocalDateTime.now());
+		item.changeQty(qty);
+		this.items.add(item);
+		return item;
 	}
 
 	public void removeItems(Set<Long> variantIds) {
-		throw new UnsupportedOperationException();
+		this.items.removeIf(i -> variantIds.contains(i.getVariant().getId()));
 	}
 
 	public BigDecimal subtotal() {
-		throw new UnsupportedOperationException();
+		return this.items.stream().map(CartItem::lineTotal).reduce(BigDecimal.ZERO, BigDecimal::add);
 	}
 
 	// ===== Getter/Setter (bổ sung - CLAUDE.md 3.3) =====

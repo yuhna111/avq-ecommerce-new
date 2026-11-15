@@ -20,6 +20,9 @@ import jakarta.persistence.Table;
 @Table(name = "cart_items")
 @IdClass(CartItemId.class)
 public class CartItem {
+	/** BR05 (bổ sung hằng số, private) */
+	private static final int MAX_QTY = 10;
+
 	@Column(name = "quantity", nullable = false, columnDefinition = "tinyint")
 	private int quantity;
 	@Column(name = "added_at", nullable = false)
@@ -35,11 +38,15 @@ public class CartItem {
 	private Cart cart;
 
 	public void changeQty(int qty) {
-		throw new UnsupportedOperationException();
+		// BR05 (CHECK quantity BETWEEN 1 AND 10); kiểm tra tồn kho ở CartService
+		if (qty < 1 || qty > MAX_QTY) {
+			throw new IllegalArgumentException("Số lượng mỗi dòng phải từ 1 đến " + MAX_QTY);
+		}
+		this.quantity = qty;
 	}
 
 	public BigDecimal lineTotal() {
-		throw new UnsupportedOperationException();
+		return this.variant.getProduct().getPrice().multiply(BigDecimal.valueOf(this.quantity));
 	}
 
 	// ===== Getter/Setter (bổ sung - CLAUDE.md 3.3) =====
