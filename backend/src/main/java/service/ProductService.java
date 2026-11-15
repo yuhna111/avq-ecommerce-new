@@ -5,7 +5,7 @@ import api.dto.CreateProductRequest;
 import java.util.List;
 import api.dto.ProductCardDto;
 import api.dto.ProductDetailDto;
-import api.dto.ProductFilter;
+import repository.ProductFilter;
 import api.dto.UpdateProductRequest;
 
 public class ProductService {

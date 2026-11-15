@@ -4,7 +4,7 @@ import api.dto.CategoryDto;
 import java.util.List;
 import api.dto.ProductCardDto;
 import api.dto.ProductDetailDto;
-import api.dto.ProductFilter;
+import repository.ProductFilter;
 
 public class ProductController {
 
