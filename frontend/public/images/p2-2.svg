@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+<rect width="400" height="400" fill="#eef1f4"/>
+<ellipse cx="200" cy="352" rx="120" ry="12" fill="#0001"/>
+<path d="M120 70 L170 50 Q200 75 230 50 L280 70 L320 130 L280 150 L270 125 L270 330 L130 330 L130 125 L120 150 L80 130 Z" fill="#9aa0a6" stroke="#0002" stroke-width="3" stroke-linejoin="round"/>
+<path d="M170 50 Q200 80 230 50" fill="none" stroke="#0003" stroke-width="4"/>
+<text x="200" y="385" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#5b6470" text-anchor="middle">Áo thun Oversize Street - Xám</text>
+</svg>
