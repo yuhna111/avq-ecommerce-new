@@ -43,7 +43,7 @@ Không có phụ thuộc đi ngược lên. Controller không gọi thẳng repo
 | `Order.setStatus(newStatus)` | Chuyển | `OrderStateMachine.transit(order, to, staff, note) : void` | Một chỗ duy nhất kiểm tra DT-04 và ghi lịch sử |
 | `Order.cancel(reason)` | Chuyển | `OrderService.cancelByCustomer(customerId, orderCode, reason)` (gọi `OrderStateMachine`) | Kiểm tra quyền (BR13), chuyển trạng thái, hoàn kho |
 | `Payment.create(orderId, amount)` | Chuyển | `PaymentService.createPayment(order) : String` (trả link thanh toán) | Ghi bản ghi thanh toán và gọi cổng |
-| `Payment.updateResult(status, txnRef)` | Tách | `Payment.markResult(success, txnRef)`, `Payment.markMismatch(txnRef)`; `PaymentService.handleCallback(params) : String` | Payment chỉ tự đổi trạng thái của mình; xác thực chữ ký, chống trùng, đối chiếu số tiền ở service (DT-05) |
+| `Payment.updateResult(status, txnRef)` | Tách | `Payment.markResult(success, txnRef)`, `Payment.markMismatch(txnRef)`; `PaymentService.handleCallback(params) : void` | Payment chỉ tự đổi trạng thái của mình; xác thực chữ ký, chống trùng, đối chiếu số tiền ở service (DT-05) |
 | `ChangeLog.record(staff, old, new)` | Đổi | `ChangeLog.of(staff, variant, field, oldValue, newValue) : ChangeLog` (static) | Phương thức tạo (factory), lúc gọi chưa có đối tượng |
 | `Cart.removeItem(variantId)` | Đổi | `Cart.removeItems(variantIds : Set<Long>)` | Sau khi đặt hàng phải bỏ nhiều dòng cùng lúc |
 

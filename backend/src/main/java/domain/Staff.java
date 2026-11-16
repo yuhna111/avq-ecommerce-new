@@ -6,7 +6,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 
 @Entity
 @Table(name = "staff")
@@ -18,17 +17,15 @@ public class Staff extends User {
 	@Enumerated(EnumType.STRING)
 	@Column(name = "role", nullable = false, columnDefinition = "varchar(20)")
 	private StaffRole role;
-	// LỆCH THIẾT KẾ: bảng staff không có cột active (DDL V2). Không được sửa CSDL nên
-	// đánh dấu @Transient: không lưu, luôn true (đặt trong constructor). Ghi vào báo cáo.
-	@Transient
-	private boolean active;
-
 	public Staff() {
-		this.active = true;
 	}
 
+	/**
+	 * VP (sửa 16/11) đã bỏ thuộc tính active vì bảng staff không có cột này; phương thức vẫn giữ theo
+	 * thiết kế. Phạm vi demo: mọi tài khoản nhân viên trong bảng staff đều đang hoạt động.
+	 */
 	public boolean isActive() {
-		return this.active;
+		return true;
 	}
 
 	// ===== Getter/Setter (bổ sung - CLAUDE.md 3.3) =====

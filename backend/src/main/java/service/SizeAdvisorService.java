@@ -2,6 +2,8 @@ package service;
 
 import api.dto.SizeAdviceDto;
 import api.dto.SizeAdviceRequest;
+import domain.AiFeature;
+import domain.AiInferenceLog;
 import domain.BodyProfile;
 import domain.Customer;
 import domain.Product;
@@ -11,12 +13,11 @@ import infra.AiSizeResult;
 import infra.SizeFeatures;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
-import java.time.LocalDateTime;
 import java.util.HexFormat;
 import java.util.List;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import repository.AiInferenceLogRepository;
 import repository.BodyProfileRepository;
 import repository.CustomerRepository;
 import repository.ProductRepository;
@@ -25,9 +26,7 @@ import repository.SizeChartRepository;
 /**
  * UC06a - FB-01: thử AI (ngưỡng tin cậy 0,6; chờ tối đa 1,5 giây), không có/không tin được thì dùng bảng size.
  * Bản demo không có AI thật nên luôn dùng FallbackPolicy.
- *
- * LỆCH THIẾT KẾ: bảng ai_inference_logs (DB-R7) chưa có lớp tương ứng trong VP -> ghi bằng JdbcTemplate
- * (CLAUDE.md mục 4). Đề xuất bổ sung lớp AiInferenceLog vào VP.
+ * Mỗi lần gợi ý ghi một AiInferenceLog qua AiInferenceLogRepository (DB-R7; Dependency trên Hình 4.9).
  */
 @Service
 public class SizeAdvisorService {
@@ -42,18 +41,19 @@ public class SizeAdvisorService {
 	private final CustomerRepository customerRepository;
 	private final AiServiceClient aiServiceClient;
 	private final FallbackPolicy fallbackPolicy;
-	private final JdbcTemplate jdbcTemplate;
+	private final AiInferenceLogRepository aiInferenceLogRepository;
 
 	public SizeAdvisorService(ProductRepository productRepository, SizeChartRepository sizeChartRepository,
 			BodyProfileRepository bodyProfileRepository, CustomerRepository customerRepository,
-			AiServiceClient aiServiceClient, FallbackPolicy fallbackPolicy, JdbcTemplate jdbcTemplate) {
+			AiServiceClient aiServiceClient, FallbackPolicy fallbackPolicy,
+			AiInferenceLogRepository aiInferenceLogRepository) {
 		this.productRepository = productRepository;
 		this.sizeChartRepository = sizeChartRepository;
 		this.bodyProfileRepository = bodyProfileRepository;
 		this.customerRepository = customerRepository;
 		this.aiServiceClient = aiServiceClient;
 		this.fallbackPolicy = fallbackPolicy;
-		this.jdbcTemplate = jdbcTemplate;
+		this.aiInferenceLogRepository = aiInferenceLogRepository;
 	}
 
 	/** customerId = null khi khách chưa đăng nhập (vẫn được gợi ý, không lưu số đo). */
@@ -113,9 +113,8 @@ public class SizeAdvisorService {
 			int latencyMs, boolean fallbackUsed) {
 		String inputHash = sha256(h + "|" + w + "|" + req.fitPref());
 		String output = "{\"productId\":" + productId + ",\"size\":" + (size == null ? "null" : "\"" + size + "\"") + "}";
-		jdbcTemplate.update("INSERT INTO ai_inference_logs (feature, model_version, input_hash, output_json, latency_ms, "
-				+ "fallback_used, created_at) VALUES ('SIZE', ?, ?, ?, ?, ?, ?)",
-				modelVersion, inputHash, output, latencyMs, fallbackUsed, LocalDateTime.now());
+		aiInferenceLogRepository.save(
+				new AiInferenceLog(AiFeature.SIZE, modelVersion, inputHash, output, latencyMs, fallbackUsed));
 	}
 
 	private static String sha256(String s) {

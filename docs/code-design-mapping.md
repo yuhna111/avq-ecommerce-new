@@ -6,8 +6,8 @@ Hai tiêu chí giảng viên kiểm tra:
 
 | Tiêu chí | Bằng chứng | Kết quả |
 |---|---|---|
-| **code ↔ design** | 63 lớp VP sinh được chép sang `backend/` và viết tiếp trên chính các file đó. Script đối chiếu `vp/model.xml` với mã (mục 1.1) | 63/63 lớp đúng tên và package; **112/112** phương thức trên sơ đồ có trong mã với đúng tên và chữ ký; 0 thuộc tính hay giá trị enum bị mất |
-| **use DB?** | `spring.jpa.hibernate.ddl-auto=validate` trên `avq_db_vp` tạo từ `db/V2__vp_generated.sql`. Phép thử ngược: đổi sai tên một cột thì Hibernate chặn (`missing column [tracking_code_x] in table [orders]`) | Khởi động thành công; 17/18 bảng có entity, **0 cột chưa ánh xạ**; bảng thứ 18 (`ai_inference_logs`) được ghi bằng JdbcTemplate |
+| **code ↔ design** | 63 lớp VP sinh được chép sang `backend/` và viết tiếp trên chính các file đó; 7 lớp thêm vào VP ngày 16/11 được viết tay theo đúng sơ đồ (B7). Script đối chiếu `vp/model.xml` với mã (mục 1.1) | 69/70 lớp có file cùng tên, cùng package (còn `SizeFeature`, xem L12); **117/117** phương thức và **107/107** thuộc tính trên sơ đồ có trong mã với đúng tên |
+| **use DB?** | `spring.jpa.hibernate.ddl-auto=validate` trên `avq_db_vp` tạo từ `db/V2__vp_generated.sql`. Phép thử ngược: đổi sai tên một cột thì Hibernate chặn (`missing column [tracking_code_x] in table [orders]`) | Khởi động thành công; **18/18 bảng có entity**, **0 cột chưa ánh xạ** |
 
 Chiều phụ thuộc theo Hình 4.6, kiểm tra bằng `import`: `api → service`, `service → repository, infra, domain`, `infra → domain`, `repository → domain`. Domain chỉ dùng `jakarta.persistence`. Hai ngoại lệ có lý do được ghi ở L13 và L14.
 
@@ -19,7 +19,7 @@ Chiều phụ thuộc theo Hình 4.6, kiểm tra bằng `import`: `api → servi
 
 Sinh tự động từ `vp/model.xml` (model "5. Design") và mã trong `backend/src/main/java`. Cột "Hình" lấy từ các sơ đồ VP có chứa lớp (4.5 Design Class Diagram, 4.7–4.9 Layered Class Diagram).
 
-Tổng: **112/112** phương thức trên sơ đồ có mặt trong mã với đúng tên; 63 lớp có file cùng tên, cùng package.
+Tổng: **117/117** phương thức trên sơ đồ có mặt trong mã với đúng tên; 69/70 lớp có file cùng tên, cùng package; **107/107** thuộc tính trên sơ đồ có trường cùng tên trong mã.
 
 
 **Package `api`**
@@ -89,6 +89,10 @@ Tổng: **112/112** phương thức trên sơ đồ có mặt trong mã với đ
 | | | `cancelByCustomer(customerId, orderCode, reason)` | [:142](../backend/src/main/java/service/OrderService.java#L142) |
 | | | `updateStatusByStaff(staffId, orderCode, to, note)` | [:161](../backend/src/main/java/service/OrderService.java#L161) |
 | | | `expireOverdue(now)` | [:185](../backend/src/main/java/service/OrderService.java#L185) |
+| | | `listByCustomer(customerId)` | [:198](../backend/src/main/java/service/OrderService.java#L198) |
+| | | `getDetail(customerId, orderCode)` | [:203](../backend/src/main/java/service/OrderService.java#L203) |
+| | | `listForStaff(status)` | [:208](../backend/src/main/java/service/OrderService.java#L208) |
+| | | `getDetailForStaff(orderCode)` | [:216](../backend/src/main/java/service/OrderService.java#L216) |
 | `OrderStateMachine` | 4.7 | *(khai báo lớp)* | [backend/src/main/java/service/OrderStateMachine.java:25](../backend/src/main/java/service/OrderStateMachine.java#L25) |
 | | | `transit(order, to, staff, note)` | [:45](../backend/src/main/java/service/OrderStateMachine.java#L45) |
 | | | `nextStatuses(from)` | [:69](../backend/src/main/java/service/OrderStateMachine.java#L69) |
@@ -101,9 +105,10 @@ Tổng: **112/112** phương thức trên sơ đồ có mặt trong mã với đ
 | | | `getDetail(id)` | [:69](../backend/src/main/java/service/ProductService.java#L69) |
 | | | `create(staffId, req)` | [:77](../backend/src/main/java/service/ProductService.java#L77) |
 | | | `update(staffId, id, req)` | [:131](../backend/src/main/java/service/ProductService.java#L131) |
+| | | `listAllForStaff()` | [:159](../backend/src/main/java/service/ProductService.java#L159) |
 | `ShippingFeeCalculator` | 4.7 | *(khai báo lớp)* | [backend/src/main/java/service/ShippingFeeCalculator.java:8](../backend/src/main/java/service/ShippingFeeCalculator.java#L8) |
 | | | `calculate(subtotal)` | [:12](../backend/src/main/java/service/ShippingFeeCalculator.java#L12) |
-| `SizeAdvisorService` | 4.9 | *(khai báo lớp)* | [backend/src/main/java/service/SizeAdvisorService.java:33](../backend/src/main/java/service/SizeAdvisorService.java#L33) |
+| `SizeAdvisorService` | 4.9 | *(khai báo lớp)* | [backend/src/main/java/service/SizeAdvisorService.java:32](../backend/src/main/java/service/SizeAdvisorService.java#L32) |
 | | | `advise(customerId, productId, req)` | [:61](../backend/src/main/java/service/SizeAdvisorService.java#L61) |
 | `StockService` | 4.7, 4.8 | *(khai báo lớp)* | [backend/src/main/java/service/StockService.java:18](../backend/src/main/java/service/StockService.java#L18) |
 | | | `reserve(items)` | [:36](../backend/src/main/java/service/StockService.java#L36) |
@@ -116,12 +121,15 @@ Tổng: **112/112** phương thức trên sơ đồ có mặt trong mã với đ
 |---|---|---|---|
 | `AiServiceClient` | 4.9 | *(khai báo lớp)* | [backend/src/main/java/infra/AiServiceClient.java:13](../backend/src/main/java/infra/AiServiceClient.java#L13) |
 | | | `predictSize(features, timeoutMs)` | [:22](../backend/src/main/java/infra/AiServiceClient.java#L22) |
+| `AiSizeResult` | 4.9 | *(khai báo lớp)* | [backend/src/main/java/infra/AiSizeResult.java:4](../backend/src/main/java/infra/AiSizeResult.java#L4) |
 | `JwtTokenProvider` | 4.9 | *(khai báo lớp)* | [backend/src/main/java/infra/JwtTokenProvider.java:14](../backend/src/main/java/infra/JwtTokenProvider.java#L14) |
 | | | `createToken(userId, role)` | [:24](../backend/src/main/java/infra/JwtTokenProvider.java#L24) |
 | | | `parse(token)` | [:36](../backend/src/main/java/infra/JwtTokenProvider.java#L36) |
 | `PaymentGatewayClient` | 4.7 | *(khai báo lớp)* | [backend/src/main/java/infra/PaymentGatewayClient.java:6](../backend/src/main/java/infra/PaymentGatewayClient.java#L6) |
 | | | `buildPaymentUrl(order, txnRef)` | [:8](../backend/src/main/java/infra/PaymentGatewayClient.java#L8) |
 | | | `verifySignature(params)` | [:10](../backend/src/main/java/infra/PaymentGatewayClient.java#L10) |
+| `SizeFeature` | – | **KHÔNG CÓ FILE `infra/SizeFeature.java`** | |
+| `TokenClaims` | 4.9 | *(khai báo lớp)* | [backend/src/main/java/infra/TokenClaims.java:4](../backend/src/main/java/infra/TokenClaims.java#L4) |
 | `VnPayClient` | 4.7 | *(khai báo lớp)* | [backend/src/main/java/infra/VnPayClient.java:23](../backend/src/main/java/infra/VnPayClient.java#L23) |
 | | | `buildPaymentUrl(order, txnRef)` | [:37](../backend/src/main/java/infra/VnPayClient.java#L37) |
 | | | `verifySignature(params)` | [:53](../backend/src/main/java/infra/VnPayClient.java#L53) |
@@ -132,6 +140,7 @@ Tổng: **112/112** phương thức trên sơ đồ có mặt trong mã với đ
 |---|---|---|---|
 | `AddressRepository` | 4.9 | *(khai báo lớp)* | [backend/src/main/java/repository/AddressRepository.java:9](../backend/src/main/java/repository/AddressRepository.java#L9) |
 | | | `findByCustomerId(customerId)` | [:11](../backend/src/main/java/repository/AddressRepository.java#L11) |
+| `AiInferenceLogRepository` | 4.9 | *(khai báo lớp)* | [backend/src/main/java/repository/AiInferenceLogRepository.java:8](../backend/src/main/java/repository/AiInferenceLogRepository.java#L8) |
 | `BodyProfileRepository` | 4.9 | *(khai báo lớp)* | [backend/src/main/java/repository/BodyProfileRepository.java:9](../backend/src/main/java/repository/BodyProfileRepository.java#L9) |
 | | | `findByCustomerId(customerId)` | [:11](../backend/src/main/java/repository/BodyProfileRepository.java#L11) |
 | `CartRepository` | 4.8 | *(khai báo lớp)* | [backend/src/main/java/repository/CartRepository.java:9](../backend/src/main/java/repository/CartRepository.java#L9) |
@@ -153,6 +162,7 @@ Tổng: **112/112** phương thức trên sơ đồ có mặt trong mã với đ
 | | | `findTopByOrderIdOrderByIdDesc(orderId)` | [:13](../backend/src/main/java/repository/PaymentRepository.java#L13) |
 | `ProductChangeLogRepository` | 4.8 | *(khai báo lớp)* | [backend/src/main/java/repository/ProductChangeLogRepository.java:9](../backend/src/main/java/repository/ProductChangeLogRepository.java#L9) |
 | | | `findByProductIdOrderByChangedAtDesc(productId)` | [:11](../backend/src/main/java/repository/ProductChangeLogRepository.java#L11) |
+| `ProductFilter` | 4.8 | *(khai báo lớp)* | [backend/src/main/java/repository/ProductFilter.java:12](../backend/src/main/java/repository/ProductFilter.java#L12) |
 | `ProductRepository` | 4.8 | *(khai báo lớp)* | [backend/src/main/java/repository/ProductRepository.java:11](../backend/src/main/java/repository/ProductRepository.java#L11) |
 | | | `search(filter)` | [:31](../backend/src/main/java/repository/ProductRepository.java#L31) |
 | | | `findByIdAndVisibleTrue(id)` | [:33](../backend/src/main/java/repository/ProductRepository.java#L33) |
@@ -172,6 +182,9 @@ Tổng: **112/112** phương thức trên sơ đồ có mặt trong mã với đ
 | `Address` | 4.5, 4.9 | *(khai báo lớp)* | [backend/src/main/java/domain/Address.java:15](../backend/src/main/java/domain/Address.java#L15) |
 | | | `setDefault(isDefault)` | [:33](../backend/src/main/java/domain/Address.java#L33) |
 | | | `toSnapshot()` | [:37](../backend/src/main/java/domain/Address.java#L37) |
+| `AiFeature` | 4.5 | *(khai báo lớp)* | [backend/src/main/java/domain/AiFeature.java:4](../backend/src/main/java/domain/AiFeature.java#L4) |
+| | | giá trị: SIZE, IMAGE | [:5](../backend/src/main/java/domain/AiFeature.java#L5) |
+| `AiInferenceLog` | 4.5, 4.9 | *(khai báo lớp)* | [backend/src/main/java/domain/AiInferenceLog.java:20](../backend/src/main/java/domain/AiInferenceLog.java#L20) |
 | `BodyProfile` | 4.5, 4.9 | *(khai báo lớp)* | [backend/src/main/java/domain/BodyProfile.java:21](../backend/src/main/java/domain/BodyProfile.java#L21) |
 | | | `update(heightCm, weightKg, fitPref)` | [:42](../backend/src/main/java/domain/BodyProfile.java#L42) |
 | `Cart` | 4.5, 4.8 | *(khai báo lớp)* | [backend/src/main/java/domain/Cart.java:24](../backend/src/main/java/domain/Cart.java#L24) |
@@ -184,7 +197,7 @@ Tổng: **112/112** phương thức trên sơ đồ có mặt trong mã với đ
 | | | `lineTotal()` | [:48](../backend/src/main/java/domain/CartItem.java#L48) |
 | `Category` | 4.5, 4.8 | *(khai báo lớp)* | [backend/src/main/java/domain/Category.java:12](../backend/src/main/java/domain/Category.java#L12) |
 | `ChangeLog` | 4.5, 4.8 | *(khai báo lớp)* | [backend/src/main/java/domain/ChangeLog.java:17](../backend/src/main/java/domain/ChangeLog.java#L17) |
-| | | `of(staff, variant, field, oldValue, newValue)` | [:41](../backend/src/main/java/domain/ChangeLog.java#L41) |
+| | | `of(staff, product, variant, field, oldValue, newValue)` | [:41](../backend/src/main/java/domain/ChangeLog.java#L41) |
 | `Customer` | 4.5, 4.9 | *(khai báo lớp)* | [backend/src/main/java/domain/Customer.java:17](../backend/src/main/java/domain/Customer.java#L17) |
 | | | `addAddress(address)` | [:26](../backend/src/main/java/domain/Customer.java#L26) |
 | `FitPref` | 4.5, 4.9 | *(khai báo lớp)* | [backend/src/main/java/domain/FitPref.java:3](../backend/src/main/java/domain/FitPref.java#L3) |
@@ -220,8 +233,8 @@ Tổng: **112/112** phương thức trên sơ đồ có mặt trong mã với đ
 | `ReturnRecord` | 4.5 | *(khai báo lớp)* | [backend/src/main/java/domain/ReturnRecord.java:20](../backend/src/main/java/domain/ReturnRecord.java#L20) |
 | `SizeChart` | 4.5, 4.9 | *(khai báo lớp)* | [backend/src/main/java/domain/SizeChart.java:15](../backend/src/main/java/domain/SizeChart.java#L15) |
 | | | `contains(heightCm, weightKg)` | [:35](../backend/src/main/java/domain/SizeChart.java#L35) |
-| `Staff` | 4.5, 4.9 | *(khai báo lớp)* | [backend/src/main/java/domain/Staff.java:14](../backend/src/main/java/domain/Staff.java#L14) |
-| | | `isActive()` | [:30](../backend/src/main/java/domain/Staff.java#L30) |
+| `Staff` | 4.5, 4.9 | *(khai báo lớp)* | [backend/src/main/java/domain/Staff.java:13](../backend/src/main/java/domain/Staff.java#L13) |
+| | | `isActive()` | [:27](../backend/src/main/java/domain/Staff.java#L27) |
 | `StaffRole` | 4.5, 4.9 | *(khai báo lớp)* | [backend/src/main/java/domain/StaffRole.java:3](../backend/src/main/java/domain/StaffRole.java#L3) |
 | | | giá trị: STAFF, OWNER | [:4](../backend/src/main/java/domain/StaffRole.java#L4) |
 | `User` | 4.5, 4.9 | *(khai báo lớp)* | [backend/src/main/java/domain/User.java:16](../backend/src/main/java/domain/User.java#L16) |
@@ -233,7 +246,7 @@ Tổng: **112/112** phương thức trên sơ đồ có mặt trong mã với đ
 
 Sinh tự động từ `db/V2__vp_generated.sql` và annotation JPA trong `backend/src/main/java/domain`. Ứng dụng khởi động với `ddl-auto=validate` nên mọi ánh xạ dưới đây đã được Hibernate kiểm tra trên `avq_db_vp`.
 
-Kết quả: 17/18 bảng có entity; số cột của các bảng đó chưa ánh xạ: **0**.
+Kết quả: 18/18 bảng có entity; số cột của các bảng đó chưa ánh xạ: **0**.
 
 
 **`addresses`** ↔ `domain.Address`
@@ -315,13 +328,13 @@ Kết quả: 17/18 bảng có entity; số cột của các bảng đó chưa á
 
 | Cột | Kiểu DDL | Thuộc tính | Vị trí |
 |---|---|---|---|
-| `staff_id` | bigint(20) | `username` | [Staff.java:16](../backend/src/main/java/domain/Staff.java#L16) |
+| `staff_id` | bigint(20) | `username` | [Staff.java:15](../backend/src/main/java/domain/Staff.java#L15) |
 | `full_name` | varchar(100) | `fullName` | [User.java:25](../backend/src/main/java/domain/User.java#L25) |
 | `password_hash` | varchar(255) | `passwordHash` | [User.java:27](../backend/src/main/java/domain/User.java#L27) |
 | `failed_login_count` | tinyint(3) | `failedLoginCount` | [User.java:29](../backend/src/main/java/domain/User.java#L29) |
 | `locked_until` | datetime | `lockedUntil` | [User.java:31](../backend/src/main/java/domain/User.java#L31) |
-| `username` | varchar(50) | `username` | [Staff.java:16](../backend/src/main/java/domain/Staff.java#L16) |
-| `role` | varchar(20) | `role` | [Staff.java:20](../backend/src/main/java/domain/Staff.java#L20) |
+| `username` | varchar(50) | `username` | [Staff.java:15](../backend/src/main/java/domain/Staff.java#L15) |
+| `role` | varchar(20) | `role` | [Staff.java:19](../backend/src/main/java/domain/Staff.java#L19) |
 
 **`order_items`** ↔ `domain.OrderItem`
 
@@ -432,18 +445,18 @@ Kết quả: 17/18 bảng có entity; số cột của các bảng đó chưa á
 | `variant_id` | bigint(20) | `orderItem` | [ReturnRecord.java:37](../backend/src/main/java/domain/ReturnRecord.java#L37) |
 | `order_id` | bigint(20) | `orderItem` | [ReturnRecord.java:37](../backend/src/main/java/domain/ReturnRecord.java#L37) |
 
-**`ai_inference_logs`** — *không có entity* (xem mục 2, lệch L10)
+**`ai_inference_logs`** ↔ `domain.AiInferenceLog`
 
-| Cột | Kiểu DDL | Ghi bằng |
-|---|---|---|
-| `log_id` | bigint(20) | `SizeAdvisorService.logInference` (JdbcTemplate) |
-| `feature` | ENUM('SIZE','IMAGE') | `SizeAdvisorService.logInference` (JdbcTemplate) |
-| `model_version` | varchar(40) | `SizeAdvisorService.logInference` (JdbcTemplate) |
-| `input_hash` | char(64) | `SizeAdvisorService.logInference` (JdbcTemplate) |
-| `output_json` | text | `SizeAdvisorService.logInference` (JdbcTemplate) |
-| `latency_ms` | int(11) | `SizeAdvisorService.logInference` (JdbcTemplate) |
-| `fallback_used` | tinyint(1) | `SizeAdvisorService.logInference` (JdbcTemplate) |
-| `created_at` | datetime | `SizeAdvisorService.logInference` (JdbcTemplate) |
+| Cột | Kiểu DDL | Thuộc tính | Vị trí |
+|---|---|---|---|
+| `log_id` | bigint(20) | `id` | [AiInferenceLog.java:24](../backend/src/main/java/domain/AiInferenceLog.java#L24) |
+| `feature` | ENUM('SIZE','IMAGE') | `feature` | [AiInferenceLog.java:27](../backend/src/main/java/domain/AiInferenceLog.java#L27) |
+| `model_version` | varchar(40) | `modelVersion` | [AiInferenceLog.java:29](../backend/src/main/java/domain/AiInferenceLog.java#L29) |
+| `input_hash` | char(64) | `inputHash` | [AiInferenceLog.java:31](../backend/src/main/java/domain/AiInferenceLog.java#L31) |
+| `output_json` | text | `outputJson` | [AiInferenceLog.java:33](../backend/src/main/java/domain/AiInferenceLog.java#L33) |
+| `latency_ms` | int(11) | `latencyMs` | [AiInferenceLog.java:35](../backend/src/main/java/domain/AiInferenceLog.java#L35) |
+| `fallback_used` | tinyint(1) | `fallbackUsed` | [AiInferenceLog.java:37](../backend/src/main/java/domain/AiInferenceLog.java#L37) |
+| `created_at` | datetime | `createdAt` | [AiInferenceLog.java:39](../backend/src/main/java/domain/AiInferenceLog.java#L39) |
 
 ---
 
@@ -464,31 +477,34 @@ Kết quả: 17/18 bảng có entity; số cột của các bảng đó chưa á
 |---|---|---|
 | B1 | `import`, annotation JPA/Spring/Validation | Không đổi tên hay chữ ký nào |
 | B2 | Trường `private final` + constructor cho phụ thuộc (mũi tên Dependency) | Mọi service/controller |
-| B3 | Getter/setter, constructor | `Staff()` đặt `active = true` (xem L2) |
+| B3 | Getter/setter, constructor | Ví dụ constructor `AiInferenceLog(feature, modelVersion, ...)` |
 | B4 | Phương thức và hằng số `private` hỗ trợ | Ví dụ `OrderService.nonEmptyCart`, `User.MAX_FAILED_LOGIN` |
 | B5 | 19 DTO (record) trong `api.dto` | TokenDto, PlaceOrderRequest, OrderDetailDto, CartDto… |
 | B6 | Lớp cấu hình trong `app`: `AvqApplication`, `SecurityConfig`, `CoreConfig`, `GlobalExceptionHandler`, `security.AuthUser`, `security.JwtAuthFilter` | |
+| B7 | Các lớp thêm vào VP ngày 16/11 (`AiFeature`, `AiInferenceLog`, `AiInferenceLogRepository`) được **viết tay theo đúng sơ đồ**, không chạy lại Instant Generator, để không ghi đè mã đã viết. `TokenClaims`, `SizeFeatures`, `AiSizeResult`, `ProductFilter` đã có sẵn trong mã từ trước | Tên lớp, package, thuộc tính khớp `vp/model.xml` (mục 1.1) |
 
-### 2.3. Lệch so với thiết kế: cần cân nhắc cập nhật VP
+### 2.3. Lệch so với thiết kế
+
+Ngày 16/11 sinh viên đã cập nhật VP theo [`vp-changes.md`](vp-changes.md). Các dòng đánh dấu **Đã cập nhật VP** không còn lệch; các dòng còn lại vẫn lệch, có lý do.
 
 | Mã | Chỗ lệch | Xử lý trong mã | Đề xuất cho VP |
 |---|---|---|---|
-| L1 | Bảng `categories` có cột `slug` (NOT NULL, UNIQUE), `CategoryRepository.findBySlug` dùng nó, nhưng lớp `Category` **không có** thuộc tính `slug` | Bổ sung trường `Category.slug` | Thêm `slug : String` vào `Category` (Hình 4.5) |
-| L2 | `Staff.active` có trong thiết kế nhưng bảng `staff` **không có cột** `active` | `@Transient`, luôn `true` (đặt trong constructor). Không sửa CSDL theo CLAUDE.md | Thêm cột `active` vào ERD, hoặc bỏ thuộc tính khỏi lớp |
-| L3 | `PaymentService.handleCallback(params)` và `PaymentCallbackController.vnpayIpn(params)` **không khai báo kiểu trả về** trong model nên VP sinh `void`; design-notes ghi `: String` | Giữ `void`. Trả về bình thường = mã `00`; các mã `97/01/02/04` ném `PaymentCallbackException`, với `noRollbackFor` để vẫn lưu trạng thái "Sai lệch". `vnpayIpn` trả HTTP 200 và ghi nhật ký mã | Khai báo `handleCallback(...) : String`, `vnpayIpn(...) : IpnResponse` |
-| L4 | Hình 4.7 **thiếu phương thức service** cho `OrderController.list/detail` và `AdminOrderController.list/detail` | Thêm 4 phương thức public vào `OrderService`: `listByCustomer`, `getDetail`, `listForStaff`, `getDetailForStaff` | Thêm 4 phương thức này vào `OrderService` |
-| L5 | Hình 4.8 **thiếu phương thức service** cho `AdminProductController.listAll` | Thêm `ProductService.listAllForStaff()` | Thêm vào `ProductService` |
-| L6 | `updateStatus(staffId, code, to, note)` không có tham số mã vận đơn, nhưng DB-R3 yêu cầu ghi `tracking_code` khi chuyển sang Đang giao | `OrderStateMachine.transit` tự sinh mã `VDyyMMddxxxxxx` khi chuyển sang `DANG_GIAO` | Thêm tham số `trackingCode`, hoặc ghi rõ "hệ thống tự sinh" |
-| L7 | DT-04 có "khách đổi sang COD" (Chờ thanh toán → Chờ xác nhận), nhưng thiết kế **không có phương thức** tương ứng | Không hiện thực (theo docs/business-rules.md). Khách chỉ có thể hủy rồi đặt lại | Thêm `OrderService.switchToCod(customerId, code)` nếu muốn giữ |
-| L8 | `ChangeLog.of(staff, variant, field, old, new)` không nhận `product`, trong khi `product_id` NOT NULL. Thay đổi cấp sản phẩm (giá, mô tả) có `variant = null` | Service gọi thêm `setProduct(p)` sau `of(...)` | Thêm tham số `product` vào `ChangeLog.of` |
+| L1 | Bảng `categories` có cột `slug` (NOT NULL, UNIQUE), `CategoryRepository.findBySlug` dùng nó, nhưng lớp `Category` **không có** thuộc tính `slug` | Bổ sung trường `Category.slug` | **Đã cập nhật VP (16/11).** `Category` có `slug : String` (Hình 4.5) |
+| L2 | `Staff.active` có trong thiết kế nhưng bảng `staff` **không có cột** `active` | VP đã bỏ thuộc tính `active`, giữ phương thức `isActive() : boolean`. Mã: không còn trường `active`; `isActive()` trả `true` (mọi nhân viên trong bảng đều đang hoạt động) | **Đã cập nhật VP (16/11).** Bỏ thuộc tính khỏi lớp `Staff` |
+| L3 | `PaymentService.handleCallback(params)` và `PaymentCallbackController.vnpayIpn(params)` **không khai báo kiểu trả về** trong model nên VP sinh `void`; design-notes ghi `: String` | Giữ `void`. Trả về bình thường = mã `00`; các mã `97/01/02/04` ném `PaymentCallbackException`, với `noRollbackFor` để vẫn lưu trạng thái "Sai lệch". `vnpayIpn` trả HTTP 200 và ghi nhật ký mã | **Đã cập nhật VP (16/11).** Cả hai khai báo `: void`; `design-notes.md` sửa theo |
+| L4 | Hình 4.7 **thiếu phương thức service** cho `OrderController.list/detail` và `AdminOrderController.list/detail` | Thêm 4 phương thức public vào `OrderService`: `listByCustomer`, `getDetail`, `listForStaff`, `getDetailForStaff` | **Đã cập nhật VP (16/11).** 4 phương thức có trên Hình 4.7 |
+| L5 | Hình 4.8 **thiếu phương thức service** cho `AdminProductController.listAll` | Thêm `ProductService.listAllForStaff()` | **Đã cập nhật VP (16/11).** Có trên Hình 4.8 |
+| L6 | `updateStatus(staffId, code, to, note)` không có tham số mã vận đơn, nhưng DB-R3 yêu cầu ghi `tracking_code` khi chuyển sang Đang giao | `OrderStateMachine.transit` tự sinh mã `VDyyMMddxxxxxx` khi chuyển sang `DANG_GIAO` | Vẫn lệch: chưa ghi chú trên VP. Phương án: hệ thống tự sinh |
+| L7 | DT-04 có "khách đổi sang COD" (Chờ thanh toán → Chờ xác nhận), nhưng thiết kế **không có phương thức** tương ứng | Không hiện thực (theo docs/business-rules.md). Khách chỉ có thể hủy rồi đặt lại | Vẫn lệch: chưa ghi chú trên VP. Phương án: ngoài phạm vi demo |
+| L8 | `ChangeLog.of(staff, variant, field, old, new)` không nhận `product`, trong khi `product_id` NOT NULL. Thay đổi cấp sản phẩm (giá, mô tả) có `variant = null` | Mã đã theo chữ ký mới `of(staff, product, variant, field, oldValue, newValue)`; kiểm thử ở `ChangeLogServiceTest` | **Đã cập nhật VP (16/11).** Thêm tham số `product` |
 | L9 | `body_profiles` khóa chính = khóa ngoại `customer_id` (R8), lớp `BodyProfile` không có thuộc tính khóa | Thêm `BodyProfile.customerId` + `@MapsId` (CLAUDE.md mục 4) | Không bắt buộc (chi tiết ORM) |
-| L10 | Bảng `ai_inference_logs` (DB-R7) **chưa có lớp** tương ứng | `SizeAdvisorService` ghi bằng `JdbcTemplate` (CLAUDE.md mục 4): `feature = SIZE`, `fallback_used = 1`, `input_hash` = SHA-256 số đo | Thêm lớp `AiInferenceLog` (+ repository) vào VP |
+| L10 | Bảng `ai_inference_logs` (DB-R7) **chưa có lớp** tương ứng | Mã: entity `domain.AiInferenceLog` + enum `AiFeature` + `repository.AiInferenceLogRepository`; `SizeAdvisorService` lưu qua repository (`feature = SIZE`, `fallback_used = 1`, `input_hash` = SHA-256 số đo), thay cho JdbcTemplate | **Đã cập nhật VP (16/11).** Lớp, enum, repository và Dependency `SizeAdvisorService → AiInferenceLogRepository` (Hình 4.5, 4.9) |
 | L11 | Khóa ghép `order_items`, `cart_items` | Thêm 2 lớp khóa `OrderItemId`, `CartItemId` (`@IdClass`, khóa lấy từ hai quan hệ). Không thêm thuộc tính vào entity | Không bắt buộc |
-| L12 | DTO/kiểu chưa có trong VP mà tầng `infra` và `repository` dùng: `TokenClaims`, `SizeFeatures`, `AiSizeResult`, `ProductFilter` | Đặt trong `infra` và `repository` (không đặt ở `api.dto`) để không tạo phụ thuộc ngược lên `api` | Thêm các lớp này vào sơ đồ |
+| L12 | DTO/kiểu chưa có trong VP mà tầng `infra` và `repository` dùng: `TokenClaims`, `SizeFeatures`, `AiSizeResult`, `ProductFilter` | Đặt trong `infra` và `repository` (không đặt ở `api.dto`) để không tạo phụ thuộc ngược lên `api` | **Đã cập nhật VP (16/11).** Đã thêm 4 lớp. **Còn lệch tên:** lớp trên VP tên `SizeFeature`, trong khi mã và kiểu tham số `predictSize(features : SizeFeatures, ...)` trên chính sơ đồ là `SizeFeatures` → cần đổi tên lớp trong VP |
 | L13 | `PaymentCallbackController.mockPay` dùng `infra.MockPaymentGatewayClient` (api → infra) | Cổng giả lập đóng vai hệ thống thanh toán bên ngoài gửi IPN đã ký; kết quả vẫn đi qua `PaymentService.handleCallback`. Chỉ có ở bản demo. Để giao dịch không mất khi khởi động lại máy chủ, trang `/mock-pay` gửi kèm các tham số `vnp_*` của link đã ký; controller đọc qua `HttpServletRequest` (tiêm qua constructor, **giữ nguyên chữ ký** `mockPay(code, success)`), cổng kiểm chữ ký rồi mới nhận lại (`restoreIssued`) | Không cần: lớp giả lập ngoài phạm vi thiết kế |
 | L14 | `api` và `service` dùng kiểu tham số `repository.ProductFilter`; `service` trả DTO thuộc `api.dto` | Chỉ là kiểu dữ liệu, controller không gọi repository. Phương án DTO trong `api.dto` theo CLAUDE.md 3.3 | Có thể tách package `dto` dùng chung |
 | L15 | Lớp hỗ trợ không có trong VP: `MockPaymentGatewayClient` (CLAUDE.md yêu cầu), `service.BusinessException`, `service.PaymentCallbackException`, `service.DtoMapper` | Lỗi nghiệp vụ có mã + thông báo tiếng Việt; chuyển entity sang DTO dùng chung | Không bắt buộc |
-| L16 | Sequence 2.10 (Chương 2) vẽ "tạo đơn rồi trừ kho" | Mã làm ngược lại: **trừ kho trước** (`StockService.reserve` trước khi lưu đơn), theo design-notes và CLAUDE.md, để tránh deadlock | Vẽ lại Sequence 2.10 theo thứ tự mới |
+| L16 | Sequence 2.10 (Chương 2) vẽ "tạo đơn rồi trừ kho" | Mã làm ngược lại: **trừ kho trước** (`StockService.reserve` trước khi lưu đơn), theo design-notes và CLAUDE.md, để tránh deadlock | **Đã cập nhật VP (16/11).** 2.10: `10: decreaseStock(lines)` → `11: ok` → `12: create(lines, fee, status)` |
 | L17 | Cổng VNPay thật | `VnPayClient` đã hiện thực ký/kiểm chữ ký HMAC-SHA512 nhưng chỉ bật khi `payment.provider=vnpay`; mặc định dùng cổng giả lập (CLAUDE.md mục 7) | – |
 
 Các điểm trong `vp/` đã được sửa trước khi hiện thực: `PaymentStatus.SAIL_LECH` → `SAI_LECH` (sinh lại từ VP); stereotype `RestController` có ký tự TAB thừa; tên role tiếng Việt có dấu (gây tên trường lỗi `g?m`, `c\xF3_bi?n_th?`); tên model chứa dấu chấm làm Instant Generator lưu sai thư mục (đã sắp lại file theo package, SHA-256 khớp 63/63).
@@ -507,9 +523,10 @@ Chạy `.\mvnw.cmd test` trong `backend/`. Kiểm thử tích hợp chạy trên
 | `service.LastItemConcurrencyTest` | 1 | Đạt | **BR11**: 10 khách cùng lúc đặt chiếc cuối cùng → đúng 1 đơn thành công, 9 lỗi `OUT_OF_STOCK`, tồn kho về 0 |
 | `service.SizeAdvisorServiceTest` | 2 | Đạt | **FB-01** qua service: dùng bảng size, ghi `ai_inference_logs` (`fallback_used = 1`, `input_hash` 64 ký tự), lưu số đo khi khách đồng ý; sản phẩm không có bảng size |
 | `repository.RepositoryQueryTest` | 6 | Đạt | `findByEmailOrPhone`, `decreaseIfEnough`/`increase` (+ version), `search` (từ khóa, danh mục, size, giá, ẩn/hiện), truy vấn đơn theo khách / mã / quá hạn, `existsByTxnRef`, `findTopByOrderIdOrderByIdDesc`, bảng size theo thứ tự, `findBySlug` |
+| `service.ChangeLogServiceTest` | 2 | Đạt | **FR31**: sửa tồn kho ghi log có `product_id` + `variant_id`; sửa giá, ẩn sản phẩm ghi log cấp sản phẩm (`variant_id` null) |
 | `infra.MockGatewayRestoreTest` | 2 | Đạt | Cổng giả lập: sau khi khởi động lại, link đã ký khôi phục được giao dịch (IPN ký đúng, số tiền đúng); link bị sửa số tiền thì bị từ chối |
 | `api.ApiSecurityTest` | 4 | Đạt | **BR03** xem sản phẩm không cần đăng nhập; **BR15** tách quyền khách/nhân viên (401/403), token giả bị từ chối; lỗi trả JSON `{code, message}`; luồng HTTP đặt hàng ONLINE → thanh toán giả lập → nhân viên giao hàng → khách không hủy được |
-| **Tổng** | **56** | **56/56 đạt** | |
+| **Tổng** | **58** | **58/58 đạt** | |
 
 Ngoài ra trên backend thật (dữ liệu thử đã dọn khỏi CSDL demo sau mỗi lần chạy):
 

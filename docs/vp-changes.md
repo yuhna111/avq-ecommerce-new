@@ -1,5 +1,13 @@
 # Hướng dẫn sửa Visual Paradigm cho khớp với mã
 
+> **Trạng thái 16/11 (Claude kiểm tra `vp/model.xml` sau khi sinh viên sửa):**
+> - **Đã xong:** bước 1, 3–9, 10 (kiểu `void`), 13, 14, 15, và `design-notes.md`. Mã đã sửa theo; đối chiếu đạt 117/117 phương thức, 107/107 thuộc tính, CSDL 18/18 bảng.
+> - **Bước 2:** sinh viên chọn **bỏ** thuộc tính `Staff.active` (giữ `isActive()`). Mã đã sửa theo.
+> - **Chưa đạt:**
+>   - lớp `SizeFeature` (bước 8) phải đổi tên thành **`SizeFeatures`**;
+>   - ảnh `docs/diagrams/4.7.png` chưa xuất lại.
+> - **Không làm được:** các ghi chú Documentation (bước 10, 11, 12). L6 và L7 vẫn được giải thích trong báo cáo đối chiếu.
+
 Mục đích: đưa sơ đồ VP về khớp với mã đã hiện thực, để giảng viên đối chiếu "code ↔ design" không thấy lệch.
 Mã lệch (L…/K…) trong ngoặc ứng với mục 2 của [`code-design-mapping.md`](code-design-mapping.md).
 Đánh dấu `[x]` vào từng bước khi làm xong.

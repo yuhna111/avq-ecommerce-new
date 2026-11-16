@@ -75,6 +75,6 @@ public class StockService {
 		}
 		variant.setStock(stock);
 		productVariantRepository.saveAndFlush(variant);
-		productChangeLogRepository.save(ChangeLog.of(staff, variant, "stock_qty", String.valueOf(old), String.valueOf(stock)));
+		productChangeLogRepository.save(ChangeLog.of(staff, variant.getProduct(), variant, "stock_qty", String.valueOf(old), String.valueOf(stock)));
 	}
 }

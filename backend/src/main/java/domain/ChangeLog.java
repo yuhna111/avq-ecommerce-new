@@ -38,12 +38,13 @@ public class ChangeLog {
 	@JoinColumn(name = "variant_id")
 	private ProductVariant productVariant;
 
-	public static ChangeLog of(Staff staff, ProductVariant variant, String field, String oldValue, String newValue) {
-		// FR31. Khi thay đổi cấp sản phẩm (variant = null), service gán product bằng setProduct.
+	public static ChangeLog of(Staff staff, Product product, ProductVariant variant, String field, String oldValue,
+			String newValue) {
+		// FR31. Thay đổi cấp sản phẩm (giá, mô tả, ẩn/hiện): variant = null.
 		ChangeLog log = new ChangeLog();
 		log.staff = staff;
+		log.product = product;
 		log.productVariant = variant;
-		log.product = variant != null ? variant.getProduct() : null;
 		log.fieldName = field;
 		log.oldValue = oldValue;
 		log.newValue = newValue;
@@ -79,10 +80,6 @@ public class ChangeLog {
 
 	public Staff getStaff() {
 		return staff;
-	}
-
-	public void setProduct(Product product) {
-		this.product = product;
 	}
 
 	public ProductVariant getProductVariant() {

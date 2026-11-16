@@ -79,7 +79,7 @@ cd backend
 
 Thấy dòng `Started AvqApplication` là xong. Nếu mã không khớp CSDL, ứng dụng sẽ dừng ngay với lỗi `Schema-validation`; chạy được chính là bằng chứng mã khớp CSDL.
 
-Chạy kiểm thử (56 test: đơn vị + tích hợp trên MySQL, tự rollback, không để lại dữ liệu):
+Chạy kiểm thử (58 test: đơn vị + tích hợp trên MySQL, tự rollback, không để lại dữ liệu):
 
 ```powershell
 .\mvnw.cmd test

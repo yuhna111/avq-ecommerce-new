@@ -177,9 +177,7 @@ public class ProductService {
 		if (Objects.equals(oldValue, newValue)) {
 			return;
 		}
-		ChangeLog log = ChangeLog.of(staff, null, field, truncate(oldValue), truncate(newValue));
-		log.setProduct(p);
-		productChangeLogRepository.save(log);
+		productChangeLogRepository.save(ChangeLog.of(staff, p, null, field, truncate(oldValue), truncate(newValue)));
 	}
 
 	private static String truncate(String s) {
