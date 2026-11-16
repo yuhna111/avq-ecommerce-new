@@ -31,3 +31,6 @@ Thumbs.db
 
 # ===== Cấu hình cục bộ chứa mật khẩu (dùng file mẫu application-local.example.yml) =====
 backend/src/main/resources/application-local.yml
+
+# Ảnh nhân viên tải lên khi chạy demo
+backend/uploads/

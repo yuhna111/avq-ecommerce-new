@@ -1,6 +1,8 @@
 package api;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -11,6 +13,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import domain.Product;
 import domain.Staff;
+import domain.StaffRole;
+import org.springframework.mock.web.MockMultipartFile;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,7 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import testsupport.Fixtures;
 
 /** Giai đoạn 5: phân quyền JWT (BR03, BR15), lỗi dạng JSON {code, message}, luồng HTTP đặt hàng + thanh toán giả lập. */
-@SpringBootTest(classes = AvqApplication.class, properties = "app.scheduling.enabled=false")
+@SpringBootTest(classes = AvqApplication.class, properties = { "app.scheduling.enabled=false", "app.upload-dir=target/test-uploads" })
 @AutoConfigureMockMvc
 @Transactional
 class ApiSecurityTest {
@@ -48,12 +52,17 @@ class ApiSecurityTest {
 	}
 
 	private String staffToken() throws Exception {
+		return staffToken(StaffRole.STAFF);
+	}
+
+	private String staffToken(StaffRole role) throws Exception {
 		Staff s = fx.staff();
+		s.setRole(role);
 		s.setPasswordHash(encoder.encode("nhanvien123"));
 		em.flush();
 		String res = mvc.perform(post("/api/auth/staff/login").contentType(MediaType.APPLICATION_JSON)
 						.content("{\"identifier\":\"" + s.getUsername() + "\",\"password\":\"nhanvien123\"}"))
-				.andExpect(status().isOk()).andExpect(jsonPath("$.role").value("STAFF"))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.role").value(role.name()))
 				.andReturn().getResponse().getContentAsString();
 		return "Bearer " + json.readTree(res).get("token").asText();
 	}
@@ -129,5 +138,41 @@ class ApiSecurityTest {
 				.andExpect(jsonPath("$.trackingCode").exists());
 		mvc.perform(post("/api/orders/" + code + "/cancel").header("Authorization", customer))
 				.andExpect(status().isConflict()).andExpect(jsonPath("$.code").value("CANCEL_NOT_ALLOWED"));
+	}
+
+	/** Bổ sung 17/11: quản lý nhân viên chỉ dành cho chủ cửa hàng (BR02). */
+	@Test
+	void quanLyNhanVien_chiChuCuaHang() throws Exception {
+		String staff = staffToken();
+		String owner = staffToken(StaffRole.OWNER);
+		mvc.perform(get("/api/admin/staff").header("Authorization", staff))
+				.andExpect(status().isForbidden()).andExpect(jsonPath("$.code").value("FORBIDDEN"));
+		mvc.perform(get("/api/admin/staff").header("Authorization", owner)).andExpect(status().isOk());
+		mvc.perform(post("/api/admin/staff").header("Authorization", owner).contentType(MediaType.APPLICATION_JSON)
+						.content("{\"username\":\"nvapi" + fx.tag() + "\",\"fullName\":\"NV API\",\"password\":\"matkhau123\"}"))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.role").value("STAFF"));
+		mvc.perform(post("/api/admin/staff").header("Authorization", owner).contentType(MediaType.APPLICATION_JSON)
+						.content("{\"username\":\"Có Dấu\",\"fullName\":\"x\",\"password\":\"123\"}"))
+				.andExpect(status().isBadRequest()).andExpect(jsonPath("$.code").value("VALIDATION_ERROR"));
+		// chủ cửa hàng vẫn có mọi quyền nhân viên
+		mvc.perform(get("/api/admin/orders").header("Authorization", owner)).andExpect(status().isOk());
+	}
+
+	/** Bổ sung 17/11: tải ảnh sản phẩm – nhân viên được, khách không; file giả dạng ảnh bị từ chối. */
+	@Test
+	void taiAnhSanPham() throws Exception {
+		byte[] png = { (byte) 0x89, 'P', 'N', 'G', 0x0D, 0x0A, 0x1A, 0x0A, 0, 0, 0, 0 };
+		String staff = staffToken();
+		String res = mvc.perform(multipart("/api/admin/products/images").file(new MockMultipartFile("file", "a.png", "image/png", png))
+						.header("Authorization", staff))
+				.andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+		org.assertj.core.api.Assertions.assertThat(res).startsWith("/uploads/").endsWith(".png");
+		mvc.perform(get(res)).andExpect(status().isOk()).andExpect(content().bytes(png));
+		mvc.perform(multipart("/api/admin/products/images").file(new MockMultipartFile("file", "x.png", "image/png", "hello".getBytes()))
+						.header("Authorization", staff))
+				.andExpect(status().isBadRequest()).andExpect(jsonPath("$.code").value("INVALID_IMAGE"));
+		mvc.perform(multipart("/api/admin/products/images").file(new MockMultipartFile("file", "a.png", "image/png", png))
+						.header("Authorization", register()))
+				.andExpect(status().isForbidden());
 	}
 }

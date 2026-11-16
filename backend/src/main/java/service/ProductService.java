@@ -10,6 +10,7 @@ import domain.ChangeLog;
 import domain.Product;
 import domain.ProductImage;
 import domain.Staff;
+import infra.ImageStorage;
 import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -20,6 +21,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import repository.CategoryRepository;
 import repository.ProductChangeLogRepository;
 import repository.ProductFilter;
@@ -34,15 +36,29 @@ public class ProductService {
 	private final SizeChartRepository sizeChartRepository;
 	private final StaffRepository staffRepository;
 	private final ProductChangeLogRepository productChangeLogRepository;
+	private final ImageStorage imageStorage;
 
 	public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository,
 			SizeChartRepository sizeChartRepository, StaffRepository staffRepository,
-			ProductChangeLogRepository productChangeLogRepository) {
+			ProductChangeLogRepository productChangeLogRepository, ImageStorage imageStorage) {
 		this.productRepository = productRepository;
 		this.categoryRepository = categoryRepository;
 		this.sizeChartRepository = sizeChartRepository;
 		this.staffRepository = staffRepository;
 		this.productChangeLogRepository = productChangeLogRepository;
+		this.imageStorage = imageStorage;
+	}
+
+	/**
+	 * Bổ sung 17/11 (vp-changes.md đợt 2): nhân viên tải ảnh sản phẩm từ máy.
+	 * Trả về đường dẫn ảnh để đưa vào CreateProductRequest.imageUrls.
+	 */
+	public String uploadImage(MultipartFile file) {
+		try {
+			return imageStorage.save(file);
+		} catch (IllegalArgumentException e) {
+			throw BusinessException.badRequest("INVALID_IMAGE", e.getMessage());
+		}
 	}
 
 	@Transactional(readOnly = true)

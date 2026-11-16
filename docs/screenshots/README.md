@@ -71,9 +71,18 @@ Tài khoản dùng khi chụp: khách `0901234567` / `khach12345`, nhân viên `
 | [`UC17-0-danh-sach-san-pham.png`](UC17-0-danh-sach-san-pham.png) | Quản lý sản phẩm & tồn kho: danh sách sản phẩm (kể cả sản phẩm đang ẩn) |
 | [`UC17-1-sku-trung.png`](UC17-1-sku-trung.png) | UC17 Thêm sản phẩm: SKU đã tồn tại → bị từ chối (BR17) |
 | [`UC17-2-them-thanh-cong.png`](UC17-2-them-thanh-cong.png) | UC17 Thêm sản phẩm thành công: xuất hiện trong danh sách |
+| [`UC17-3-tai-anh-sku-tu-sinh.png`](UC17-3-tai-anh-sku-tu-sinh.png) | UC17 Thêm sản phẩm: tải ảnh từ máy (ảnh đầu là ảnh chính), file không phải ảnh bị từ chối, SKU tự sinh AVQ-TS03-DEN-M (bổ sung 17/11) |
 | [`UC18-1-sua-gia.png`](UC18-1-sua-gia.png) | UC18 Sửa giá sản phẩm (389.000 → 399.000 đ); mỗi thay đổi ghi product_change_logs (FR31) |
 | [`UC18-2-an-san-pham.png`](UC18-2-an-san-pham.png) | UC18 Ẩn sản phẩm: trạng thái "Đang ẩn", khách không còn thấy trên trang |
 | [`UC19-sua-ton-kho.png`](UC19-sua-ton-kho.png) | UC19 Cập nhật tồn kho một biến thể (StockService.updateStock), có ghi nhật ký |
+
+## Chủ cửa hàng (bổ sung 17/11)
+
+| File | Nội dung |
+|---|---|
+| [`OWNER-1-tong-quan.png`](OWNER-1-tong-quan.png) | Chủ cửa hàng đăng nhập vào thẳng Tổng quan: doanh thu, đơn theo trạng thái, doanh thu 14 ngày, hàng sắp hết, đơn mới nhất |
+| [`OWNER-2-quan-ly-nhan-vien.png`](OWNER-2-quan-ly-nhan-vien.png) | BR02 Quản lý nhân viên: danh sách tài khoản, tạo tài khoản nhân viên, đặt lại mật khẩu |
+| [`OWNER-3-nhan-vien-khong-thay-muc-cua-chu.png`](OWNER-3-nhan-vien-khong-thay-muc-cua-chu.png) | Nhân viên thường không có mục Tổng quan và Nhân viên; gõ thẳng đường dẫn thì bị đưa về Quản lý đơn hàng |
 
 ## Giao diện điện thoại
 

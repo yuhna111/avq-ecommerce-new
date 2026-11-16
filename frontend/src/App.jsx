@@ -12,6 +12,8 @@ import MockPay from './pages/MockPay'
 import { MyOrders, MyOrderDetail } from './pages/MyOrders'
 import { StaffOrders, StaffOrderDetail } from './pages/StaffOrders'
 import StaffProducts from './pages/StaffProducts'
+import OwnerDashboard from './pages/OwnerDashboard'
+import OwnerStaff from './pages/OwnerStaff'
 
 function RequireCustomer({ children }) {
   const { isCustomer } = useAuth()
@@ -23,6 +25,14 @@ function RequireCustomer({ children }) {
 function RequireStaff({ children }) {
   const { isStaff } = useAuth()
   if (!isStaff) return <Navigate to="/nhan-vien/dang-nhap" replace />
+  return children
+}
+
+/** Trang chỉ dành cho chủ cửa hàng; nhân viên thường bị đưa về Quản lý đơn hàng. */
+function RequireOwner({ children }) {
+  const { isStaff, isOwner } = useAuth()
+  if (!isStaff) return <Navigate to="/nhan-vien/dang-nhap" replace />
+  if (!isOwner) return <Navigate to="/nhan-vien/don-hang" replace />
   return children
 }
 
@@ -125,20 +135,21 @@ function CustomerHeader() {
 }
 
 function StaffHeader() {
-  const { auth, logout } = useAuth()
+  const { auth, isOwner, logout } = useAuth()
   const navigate = useNavigate()
   return (
     <header className="header header-staff">
       <div className="container header-inner">
-        <Link to="/nhan-vien/don-hang" className="logo">AVQ<span>Clothing</span></Link>
+        <Link to={isOwner ? '/nhan-vien/tong-quan' : '/nhan-vien/don-hang'} className="logo">AVQ<span>Clothing</span></Link>
+        <span className={'role-chip' + (isOwner ? ' owner' : '')}>{isOwner ? 'Chủ cửa hàng' : 'Nhân viên'}</span>
         <nav className="nav">
+          {isOwner && <NavLink to="/nhan-vien/tong-quan">Tổng quan</NavLink>}
           <NavLink to="/nhan-vien/don-hang">Quản lý đơn hàng</NavLink>
           <NavLink to="/nhan-vien/san-pham">Sản phẩm &amp; tồn kho</NavLink>
+          {isOwner && <NavLink to="/nhan-vien/nhan-vien">Nhân viên</NavLink>}
         </nav>
         <div className="header-actions">
-          <span className="user-name">
-            {auth.role === 'OWNER' ? 'Chủ cửa hàng: ' : 'Nhân viên: '}<b>{auth.fullName}</b>
-          </span>
+          <span className="user-name"><b>{auth.fullName}</b></span>
           <button className="btn btn-ghost btn-sm" onClick={() => { logout(); navigate('/nhan-vien/dang-nhap') }}>Đăng xuất</button>
         </div>
       </div>
@@ -202,6 +213,8 @@ export default function App() {
           <Route path="/nhan-vien/don-hang" element={<RequireStaff><StaffOrders /></RequireStaff>} />
           <Route path="/nhan-vien/don-hang/:code" element={<RequireStaff><StaffOrderDetail /></RequireStaff>} />
           <Route path="/nhan-vien/san-pham" element={<RequireStaff><StaffProducts /></RequireStaff>} />
+          <Route path="/nhan-vien/tong-quan" element={<RequireOwner><OwnerDashboard /></RequireOwner>} />
+          <Route path="/nhan-vien/nhan-vien" element={<RequireOwner><OwnerStaff /></RequireOwner>} />
           <Route path="*" element={<div className="empty">Không tìm thấy trang. <Link to="/">Về trang chủ</Link></div>} />
         </Routes>
       </main>

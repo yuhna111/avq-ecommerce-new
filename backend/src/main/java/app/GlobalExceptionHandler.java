@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 import service.BusinessException;
 
@@ -42,9 +44,14 @@ public class GlobalExceptionHandler {
 	}
 
 	@ExceptionHandler({ HttpMessageNotReadableException.class, MethodArgumentTypeMismatchException.class,
-			MissingServletRequestParameterException.class })
+			MissingServletRequestParameterException.class, MissingServletRequestPartException.class })
 	public ResponseEntity<Map<String, String>> badInput(Exception e) {
 		return body(HttpStatus.BAD_REQUEST, "BAD_REQUEST", "Dữ liệu gửi lên không hợp lệ");
+	}
+
+	@ExceptionHandler(MaxUploadSizeExceededException.class)
+	public ResponseEntity<Map<String, String>> tooLarge(MaxUploadSizeExceededException e) {
+		return body(HttpStatus.BAD_REQUEST, "INVALID_IMAGE", "Ảnh vượt quá 5 MB");
 	}
 
 	@ExceptionHandler(IllegalArgumentException.class)

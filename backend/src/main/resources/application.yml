@@ -14,6 +14,10 @@ spring:
     hibernate:
       ddl-auto: validate
     open-in-view: false
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
     properties:
       hibernate:
         jdbc:
@@ -27,3 +31,7 @@ payment:
 
 ai:
   enabled: false
+
+# Ảnh sản phẩm tải lên (ImageStorage): thư mục lưu, giới hạn kích thước
+app:
+  upload-dir: uploads

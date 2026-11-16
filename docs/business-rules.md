@@ -8,7 +8,7 @@ Trạng thái đơn trong mã dùng enum `OrderStatus`: `CHO_THANH_TOAN` (Chờ 
 | Mã | Quy tắc | Nơi thực thi trong thiết kế |
 |---|---|---|
 | BR01 | Mỗi email hoặc số điện thoại chỉ đăng ký được một tài khoản (EX-04) | `AuthService.register`; UNIQUE `customers.email`, `customers.phone` |
-| BR02 | Tài khoản nhân viên do chủ cửa hàng cấp, không có đăng ký công khai | Không có API đăng ký nhân viên; tạo bằng dữ liệu demo |
+| BR02 | Tài khoản nhân viên do chủ cửa hàng cấp, không có đăng ký công khai. Chủ cửa hàng có mọi quyền của nhân viên, thêm quyền xem Tổng quan và quản lý tài khoản nhân viên (tạo, đặt lại mật khẩu) | `StaffService.createStaff`, `StaffService.resetPassword` (chỉ vai trò OWNER, bổ sung 17/11) |
 | BR03 | Xem, tìm, lọc sản phẩm không cần đăng nhập; thêm vào giỏ, đặt hàng, theo dõi đơn cần đăng nhập | Phân quyền Spring Security |
 | BR04 | Phải chọn đủ size và màu (một biến thể) trước khi thêm vào giỏ | `CartService.addToCart` (DT-02) |
 | BR05 | Số lượng mỗi dòng là số nguyên dương, tối đa 10 và không vượt tồn kho của biến thể | `CartService`; CHECK `cart_items.quantity BETWEEN 1 AND 10` |

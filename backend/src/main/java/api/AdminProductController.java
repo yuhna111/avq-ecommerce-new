@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.MediaType;
 import service.ProductService;
 import service.StockService;
 
@@ -44,6 +46,12 @@ public class AdminProductController {
 	public ProductDetailDto update(@AuthenticationPrincipal(expression = "staffId") Long staffId,
 			@PathVariable Long id, @Valid @RequestBody UpdateProductRequest req) {
 		return productService.update(staffId, id, req);
+	}
+
+	/** Bổ sung 17/11: POST /api/admin/products/images (multipart, trường "file") → đường dẫn ảnh dạng chuỗi. */
+	@PostMapping(value = "/products/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.TEXT_PLAIN_VALUE)
+	public String uploadImage(@RequestParam("file") MultipartFile file) {
+		return productService.uploadImage(file);
 	}
 
 	/** PUT /api/admin/variants/{variantId}/stock?stock=25 */

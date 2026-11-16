@@ -479,8 +479,8 @@ Kết quả: 18/18 bảng có entity; số cột của các bảng đó chưa á
 | B2 | Trường `private final` + constructor cho phụ thuộc (mũi tên Dependency) | Mọi service/controller |
 | B3 | Getter/setter, constructor | Ví dụ constructor `AiInferenceLog(feature, modelVersion, ...)` |
 | B4 | Phương thức và hằng số `private` hỗ trợ | Ví dụ `OrderService.nonEmptyCart`, `User.MAX_FAILED_LOGIN` |
-| B5 | 19 DTO (record) trong `api.dto` | TokenDto, PlaceOrderRequest, OrderDetailDto, CartDto… |
-| B6 | Lớp cấu hình trong `app`: `AvqApplication`, `SecurityConfig`, `CoreConfig`, `GlobalExceptionHandler`, `security.AuthUser`, `security.JwtAuthFilter` | |
+| B5 | 22 DTO (record) trong `api.dto` | TokenDto, PlaceOrderRequest, OrderDetailDto, CartDto, StaffDto, CreateStaffRequest, ResetPasswordRequest… |
+| B6 | Lớp cấu hình trong `app`: `AvqApplication`, `SecurityConfig`, `CoreConfig`, `GlobalExceptionHandler`, `security.AuthUser`, `security.JwtAuthFilter`, `WebConfig` (phục vụ `/uploads/**`) | |
 | B7 | Các lớp thêm vào VP ngày 16/11 (`AiFeature`, `AiInferenceLog`, `AiInferenceLogRepository`) được **viết tay theo đúng sơ đồ**, không chạy lại Instant Generator, để không ghi đè mã đã viết. `TokenClaims`, `SizeFeatures`, `AiSizeResult`, `ProductFilter` đã có sẵn trong mã từ trước | Tên lớp, package, thuộc tính khớp `vp/model.xml` (mục 1.1) |
 
 ### 2.3. Lệch so với thiết kế
@@ -506,6 +506,8 @@ Ngày 16/11 sinh viên đã cập nhật VP theo [`vp-changes.md`](vp-changes.md
 | L15 | Lớp hỗ trợ không có trong VP: `MockPaymentGatewayClient` (CLAUDE.md yêu cầu), `service.BusinessException`, `service.PaymentCallbackException`, `service.DtoMapper` | Lỗi nghiệp vụ có mã + thông báo tiếng Việt; chuyển entity sang DTO dùng chung | Không bắt buộc |
 | L16 | Sequence 2.10 (Chương 2) vẽ "tạo đơn rồi trừ kho" | Mã làm ngược lại: **trừ kho trước** (`StockService.reserve` trước khi lưu đơn), theo design-notes và CLAUDE.md, để tránh deadlock | **Đã cập nhật VP (16/11).** 2.10: `10: decreaseStock(lines)` → `11: ok` → `12: create(lines, fee, status)` |
 | L17 | Cổng VNPay thật | `VnPayClient` đã hiện thực ký/kiểm chữ ký HMAC-SHA512 nhưng chỉ bật khi `payment.provider=vnpay`; mặc định dùng cổng giả lập (CLAUDE.md mục 7) | – |
+| L18 | Tải ảnh sản phẩm từ máy (bổ sung 17/11, design-notes QĐ4) chưa có trên sơ đồ | Lớp `infra.ImageStorage.save(file)`, `ProductService.uploadImage(file)`, `AdminProductController.uploadImage(file)` | **Chờ cập nhật VP (đợt 2):** thêm lớp, 3 phương thức và Dependency `ProductService → ImageStorage` (Hình 4.8); use case "upload product image" |
+| L19 | Chức năng riêng của chủ cửa hàng (bổ sung 17/11, design-notes QĐ3, BR02) chưa có trên sơ đồ | Lớp `api.AdminStaffController` (`list`, `create`, `resetPassword`), `service.StaffService` (`listStaff`, `createStaff`, `resetPassword`); SecurityConfig chặn `/api/admin/staff/**` cho vai trò khác OWNER. Trang Tổng quan chỉ ở giao diện, dùng `listForStaff`, `listAllForStaff` | **Chờ cập nhật VP (đợt 2):** thêm 2 lớp, 6 phương thức, Dependency (Hình 4.9); actor "Chủ của hàng" kế thừa "Nhân viên", use case "manage staff", "view sales overview" (Hình 1.5) |
 
 Các điểm trong `vp/` đã được sửa trước khi hiện thực: `PaymentStatus.SAIL_LECH` → `SAI_LECH` (sinh lại từ VP); stereotype `RestController` có ký tự TAB thừa; tên role tiếng Việt có dấu (gây tên trường lỗi `g?m`, `c\xF3_bi?n_th?`); tên model chứa dấu chấm làm Instant Generator lưu sai thư mục (đã sắp lại file theo package, SHA-256 khớp 63/63).
 
@@ -525,8 +527,10 @@ Chạy `.\mvnw.cmd test` trong `backend/`. Kiểm thử tích hợp chạy trên
 | `repository.RepositoryQueryTest` | 6 | Đạt | `findByEmailOrPhone`, `decreaseIfEnough`/`increase` (+ version), `search` (từ khóa, danh mục, size, giá, ẩn/hiện), truy vấn đơn theo khách / mã / quá hạn, `existsByTxnRef`, `findTopByOrderIdOrderByIdDesc`, bảng size theo thứ tự, `findBySlug` |
 | `service.ChangeLogServiceTest` | 2 | Đạt | **FR31**: sửa tồn kho ghi log có `product_id` + `variant_id`; sửa giá, ẩn sản phẩm ghi log cấp sản phẩm (`variant_id` null) |
 | `infra.MockGatewayRestoreTest` | 2 | Đạt | Cổng giả lập: sau khi khởi động lại, link đã ký khôi phục được giao dịch (IPN ký đúng, số tiền đúng); link bị sửa số tiền thì bị từ chối |
-| `api.ApiSecurityTest` | 4 | Đạt | **BR03** xem sản phẩm không cần đăng nhập; **BR15** tách quyền khách/nhân viên (401/403), token giả bị từ chối; lỗi trả JSON `{code, message}`; luồng HTTP đặt hàng ONLINE → thanh toán giả lập → nhân viên giao hàng → khách không hủy được |
-| **Tổng** | **58** | **58/58 đạt** | |
+| `infra.ImageStorageTest` | 3 | Đạt | Lưu ảnh PNG/JPEG trả về `/uploads/...`; file giả dạng ảnh (đuôi .png nhưng nội dung HTML) bị từ chối; file rỗng, file quá 5 MB bị từ chối |
+| `service.StaffServiceTest` | 4 | Đạt | **BR02**: chủ tạo nhân viên (vai trò luôn STAFF, đăng nhập được); trùng tên đăng nhập bị từ chối; đặt lại mật khẩu và mở khóa; không đặt lại mật khẩu cho chủ cửa hàng |
+| `api.ApiSecurityTest` | 6 | Đạt | **BR03** xem sản phẩm không cần đăng nhập; **BR15** tách quyền khách/nhân viên (401/403), token giả bị từ chối; lỗi trả JSON `{code, message}`; luồng HTTP đặt hàng ONLINE → thanh toán giả lập → nhân viên giao hàng → khách không hủy được; **BR02** quản lý nhân viên chỉ OWNER (nhân viên bị 403); tải ảnh: nhân viên được, khách 403, file giả bị từ chối |
+| **Tổng** | **67** | **67/67 đạt** | |
 
 Ngoài ra trên backend thật (dữ liệu thử đã dọn khỏi CSDL demo sau mỗi lần chạy):
 

@@ -152,6 +152,10 @@ Chuẩn bị: backend và frontend đang chạy; nên mở một cửa sổ thư
 | 28 | UC17 Thêm sản phẩm | "Sản phẩm & tồn kho" → "+ Thêm sản phẩm"; thử SKU trùng `AVQ-TS01-TRG-S` | SKU trùng bị từ chối (BR17); SKU mới → sản phẩm xuất hiện ở trang khách |
 | 29 | UC18 Sửa, ẩn/hiện | "Sửa / tồn kho" → đổi giá → Lưu; bấm "Ẩn" | Giá mới hiển thị cho khách; sản phẩm ẩn biến mất khỏi trang khách; mỗi thay đổi ghi `product_change_logs` (FR31) |
 | 30 | UC19 Tồn kho | Đổi tồn của một biến thể → Lưu; thử số âm | Lưu thành công, có ghi nhật ký; số âm bị từ chối (BR06) |
+| 31 | Tải ảnh, SKU tự sinh | "+ Thêm sản phẩm" → "Tải ảnh từ máy" (chọn 1–2 ảnh JPEG/PNG); chọn danh mục, nhập màu + size | Ảnh hiện ngay, ảnh đầu là ảnh chính; SKU tự điền dạng `AVQ-TS03-DEN-M`; file không phải ảnh bị từ chối |
+| 32 | Chủ cửa hàng: Tổng quan | Đăng xuất, đăng nhập `chucuahang` / `chucuahang123` | Vào thẳng "Tổng quan": doanh thu, đơn theo trạng thái, hàng sắp hết; menu có thêm "Nhân viên" |
+| 33 | BR02 Quản lý nhân viên | "Nhân viên" → tạo tài khoản mới; "Đặt lại mật khẩu" cho một nhân viên | Tài khoản mới đăng nhập được với vai trò Nhân viên |
+| 34 | Tách quyền chủ / nhân viên | Đăng nhập `nhanvien`, gõ thẳng `/nhan-vien/tong-quan` hoặc `/nhan-vien/nhan-vien` | Bị đưa về Quản lý đơn hàng; API `/api/admin/staff` trả 403 |
 
 Xem dữ liệu ghi thật trong CSDL (minh chứng "use DB?"):
 

@@ -91,8 +91,9 @@ export function StaffLogin() {
   const { login } = useAuth()
   const [form, setForm] = useState({ identifier: '', password: '' })
   const { error, busy, run } = useSubmit(async () => {
-    login(await api('/auth/staff/login', { method: 'POST', body: form }))
-    navigate('/nhan-vien/don-hang')
+    const t = await api('/auth/staff/login', { method: 'POST', body: form })
+    login(t)
+    navigate(t.role === 'OWNER' ? '/nhan-vien/tong-quan' : '/nhan-vien/don-hang')
   })
   return (
     <div className="auth-box card">

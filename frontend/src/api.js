@@ -56,3 +56,25 @@ export async function api(path, { method = 'GET', body, params } = {}) {
   }
   return data
 }
+
+/** Tải một ảnh sản phẩm lên (nhân viên). Trả về đường dẫn ảnh, ví dụ "/uploads/abc.jpg". */
+export async function uploadImage(file) {
+  const form = new FormData()
+  form.append('file', file)
+  const headers = {}
+  const auth = getAuth()
+  if (auth?.token) headers.Authorization = 'Bearer ' + auth.token
+  let res
+  try {
+    res = await fetch('/api/admin/products/images', { method: 'POST', headers, body: form })
+  } catch {
+    throw new ApiError('Không kết nối được máy chủ. Hãy kiểm tra backend đang chạy ở cổng 8080.', 'NETWORK', 0)
+  }
+  const text = await res.text()
+  if (!res.ok) {
+    let data = null
+    try { data = JSON.parse(text) } catch { data = null }
+    throw new ApiError(data?.message || 'Tải ảnh không thành công', data?.code, res.status)
+  }
+  return text
+}

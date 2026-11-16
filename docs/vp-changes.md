@@ -1,5 +1,59 @@
 # Hướng dẫn sửa Visual Paradigm cho khớp với mã
 
+## ĐỢT 2 (17/11): tải ảnh sản phẩm, quản lý nhân viên, trang Tổng quan
+
+Mã đã làm xong và kiểm thử (67/67 test đạt). Để sơ đồ khớp mã, cần thêm **3 lớp, 9 phương thức, 4 mũi tên phụ thuộc** và một số use case.
+Cách thao tác giống đợt 1 (xem "Các thao tác VP dùng nhiều lần" ở Phần 0 bên dưới). Vẫn **không** sinh lại mã hay DDL.
+
+### A. Sơ đồ use case 1.5
+- [ ] **A1.** Hình 1.5 đang đặt tên tiếng Anh (`staff`, `Customer`). Dùng công cụ **Actor** thêm actor **`owner`** (chủ cửa hàng), rồi vẽ **Generalization** từ `owner` tới `staff` (mũi tên tam giác rỗng chỉ vào `staff`): chủ cửa hàng làm được mọi việc của nhân viên.
+- [ ] **A2.** Thêm use case **`manage staff`** (Quản lý nhân viên), nối **Association** với `owner`.
+- [ ] **A3.** Thêm use case **`view sales overview`** (Xem tổng quan bán hàng), nối Association với `owner`.
+- [ ] **A4.** Thêm use case **`upload product image`** (Tải ảnh sản phẩm), vẽ quan hệ **Extend** từ `upload product image` tới `add product` (tải ảnh là bước tùy chọn khi thêm sản phẩm).
+
+### B. Hình 4.8 – Sản phẩm & Giỏ hàng
+- [ ] **B1.** Chuột phải `AdminProductController` → Add → Operation, gõ:
+  ```
+  uploadImage(file : MultipartFile) : String
+  ```
+- [ ] **B2.** Chuột phải `ProductService` → Add → Operation, gõ cùng dòng như trên:
+  ```
+  uploadImage(file : MultipartFile) : String
+  ```
+- [ ] **B3.** Tạo lớp **`ImageStorage`** trong package `infra`. Cách nhanh: kéo `AiServiceClient` từ Model Explorer vào Hình 4.8, chuột phải → **Duplicate**, đổi tên thành `ImageStorage`, xóa phương thức chép theo, rồi xóa `AiServiceClient` khỏi sơ đồ bằng **Delete from View** (không xóa khỏi model). Thêm phương thức:
+  ```
+  save(file : MultipartFile) : String
+  ```
+  Kiểm tra trong Model Explorer: lớp nằm dưới 5. Design → `infra`, không có stereotype.
+- [ ] **B4.** Vẽ **Dependency** `ProductService → ImageStorage`.
+
+### C. Hình 4.9 – Tài khoản & Gợi ý size
+- [ ] **C1.** Tạo lớp **`AdminStaffController`** (package `api`, stereotype `«RestController»`): Duplicate một controller có sẵn trên Hình 4.9 (ví dụ `AuthController`), đổi tên, xóa phương thức cũ. Thêm 3 phương thức:
+  ```
+  list() : List<StaffDto>
+  create(req : CreateStaffRequest) : StaffDto
+  resetPassword(id : Long, req : ResetPasswordRequest) : StaffDto
+  ```
+- [ ] **C2.** Tạo lớp **`StaffService`** (package `service`, stereotype `«Service»`): Duplicate `AuthService`, đổi tên, xóa phương thức cũ. Thêm 3 phương thức:
+  ```
+  listStaff() : List<StaffDto>
+  createStaff(req : CreateStaffRequest) : StaffDto
+  resetPassword(staffId : Long, newPassword : String) : StaffDto
+  ```
+- [ ] **C3.** Nếu `StaffRepository` chưa có trên Hình 4.9 thì kéo từ Model Explorer vào. Vẽ **Dependency** `AdminStaffController → StaffService` và `StaffService → StaffRepository`.
+- [ ] **C4.** (Nên làm) Thêm Note cạnh `AdminStaffController`: `Chỉ vai trò OWNER (chủ cửa hàng) được gọi; tài khoản tạo mới luôn có vai trò STAFF (BR02).`
+
+Trang **Tổng quan** của chủ cửa hàng không cần lớp mới: nó dùng `OrderService.listForStaff` và `ProductService.listAllForStaff` đã có. SKU tự sinh chỉ là gợi ý ở giao diện, không cần sửa VP.
+
+### D. Lưu và gửi lại
+- [ ] **D1.** `Ctrl+S`, rồi **Project → Export → XML…** vào `vp\xml-export`, chép `project.xml` đè lên `vp\model.xml`, chép `.vpp` đè lên `vp\AVQ_Clothing.vpp`.
+- [ ] **D2.** Xuất lại ảnh `1.5.png`, `4.8.png`, `4.9.png` vào `docs\diagrams\`.
+- [ ] **D3.** Báo Claude để đối chiếu lại (mục tiêu 73/73 lớp, 126/126 phương thức) và xóa dòng L18, L19 khỏi báo cáo.
+
+---
+
+# Đợt 1 (16/11) – đã hoàn tất
+
 > **Trạng thái 16/11 (Claude kiểm tra `vp/model.xml` sau khi sinh viên sửa): HOÀN TẤT.**
 > - Đã xong bước 1, 3–9, 10 (kiểu `void`), 13, 14, 15, `design-notes.md` và ảnh sơ đồ. Đối chiếu đạt 70/70 lớp, 117/117 phương thức, 112/112 thuộc tính; CSDL 18/18 bảng.
 > - Bước 2: sinh viên chọn **bỏ** thuộc tính `Staff.active` (giữ `isActive()`). Mã đã sửa theo.

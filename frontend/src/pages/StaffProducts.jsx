@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { api } from '../api'
+import { useEffect, useRef, useState } from 'react'
+import { api, uploadImage } from '../api'
 import { FIT_TYPE, money } from '../format'
 
 // UC17 thêm sản phẩm, UC18 sửa giá/mô tả & ẩn/hiện, UC19 cập nhật tồn kho
@@ -39,7 +39,7 @@ export default function StaffProducts() {
       </div>
       {msg && <div className={'alert alert-' + msg.type}>{msg.text}</div>}
       {creating && (
-        <CreateProduct categories={categories} onDone={(p) => { setCreating(false); notify('success', 'Đã thêm sản phẩm ' + p.name); load() }}
+        <CreateProduct categories={categories} products={products || []} onDone={(p) => { setCreating(false); notify('success', 'Đã thêm sản phẩm ' + p.name); load() }}
           onError={(t) => notify('error', t)} />
       )}
       {!products ? <div className="muted">Đang tải...</div> : (
@@ -140,12 +140,63 @@ function ProductRow({ p, open, onToggle, onVisible, onSaved, onError }) {
   )
 }
 
-function CreateProduct({ categories, onDone, onError }) {
-  const [f, setF] = useState({ name: '', categoryId: '', price: '', fitType: 'REGULAR', material: '', description: '', imageUrls: '/images/products/p1.jpg' })
-  const [variants, setVariants] = useState([{ size: 'M', color: '', sku: '', stock: 10 }])
+// ===== Tự sinh SKU theo quy ước dữ liệu demo: AVQ-<mã danh mục><số thứ tự>-<mã màu>-<size>, VD AVQ-TS01-TRG-S =====
+const CAT_CODE = { 'ao-thun': 'TS', 'ao-so-mi': 'SM', 'quan-jean': 'QJ', 'ao-khoac': 'AK', 'vay-dam': 'VD' }
+const COLOR_CODE = { 'Trắng': 'TRG', 'Đen': 'DEN', 'Xám': 'XAM', 'Xanh nhạt': 'XNH', 'Be': 'BE', 'Xanh đậm': 'XDA', 'Rêu': 'REU', 'Hồng': 'HONG', 'Xanh': 'XANH' }
+const plain = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/gi, 'd').toUpperCase()
+const catCode = (c) => (c ? CAT_CODE[c.slug] || plain(c.slug).split('-').map((w) => w[0]).join('').slice(0, 3) : 'SP')
+const colorCode = (color) => {
+  const c = color.trim()
+  if (!c) return ''
+  if (COLOR_CODE[c]) return COLOR_CODE[c]
+  const words = plain(c).replace(/[^A-Z\s]/g, '').split(/\s+/).filter(Boolean)
+  return words.length === 1 ? words[0].slice(0, 4) : words.map((w) => w[0]).join('') + words[words.length - 1].slice(1, 2)
+}
+/** Số thứ tự kế tiếp trong danh mục, dựa trên các SKU đã có (AVQ-TS01-..., AVQ-TS02-... → 03). */
+const nextNumber = (code, products) => {
+  const re = new RegExp('^AVQ-' + code + '(\\d+)-')
+  const used = products.flatMap((p) => p.variants || []).map((v) => re.exec(v.sku)).filter(Boolean).map((m) => Number(m[1]))
+  return String((used.length ? Math.max(...used) : 0) + 1).padStart(2, '0')
+}
+
+function CreateProduct({ categories, products, onDone, onError }) {
+  const [f, setF] = useState({ name: '', categoryId: '', price: '', fitType: 'REGULAR', material: '', description: '' })
+  const [images, setImages] = useState([]) // đường dẫn ảnh; ảnh đầu tiên là ảnh chính
+  const [uploading, setUploading] = useState(0)
+  const [imgError, setImgError] = useState('')
+  const [urlInput, setUrlInput] = useState('')
+  const fileRef = useRef(null)
+
+  const onFiles = async (e) => {
+    const files = [...e.target.files]
+    e.target.value = ''
+    setImgError('')
+    for (const file of files) {
+      if (file.size > 5 * 1024 * 1024) { setImgError(`"${file.name}" vượt quá 5 MB`); continue }
+      setUploading((n) => n + 1)
+      try {
+        const url = await uploadImage(file)
+        setImages((list) => [...list, url])
+      } catch (err) {
+        setImgError(`"${file.name}": ${err.message}`)
+      } finally {
+        setUploading((n) => n - 1)
+      }
+    }
+  }
+  const addUrl = () => {
+    const u = urlInput.trim()
+    if (u) { setImages([...images, u]); setUrlInput('') }
+  }
+  const makeMain = (i) => setImages([images[i], ...images.filter((_, j) => j !== i)])
+  const [variants, setVariants] = useState([{ size: 'M', color: '', sku: '', manual: false, stock: 10 }])
   const [busy, setBusy] = useState(false)
 
   const setV = (i, k, val) => setVariants(variants.map((v, j) => (j === i ? { ...v, [k]: val } : v)))
+  const category = categories.find((c) => String(c.id) === String(f.categoryId))
+  const prefix = category ? `AVQ-${catCode(category)}${nextNumber(catCode(category), products)}` : ''
+  const autoSku = (v) => (prefix && v.color.trim() && v.size.trim() ? `${prefix}-${colorCode(v.color)}-${plain(v.size).replace(/\s+/g, '')}` : '')
+  const skuOf = (v) => (v.manual ? v.sku : autoSku(v))
 
   const submit = async (e) => {
     e.preventDefault()
@@ -157,8 +208,8 @@ function CreateProduct({ categories, onDone, onError }) {
           ...f,
           price: Number(f.price),
           categoryId: Number(f.categoryId),
-          imageUrls: f.imageUrls.split(',').map((s) => s.trim()).filter(Boolean),
-          variants: variants.map((v) => ({ ...v, stock: Number(v.stock) })),
+          imageUrls: images,
+          variants: variants.map((v) => ({ size: v.size, color: v.color, sku: skuOf(v), stock: Number(v.stock) })),
         },
       })
       onDone(p)
@@ -187,21 +238,49 @@ function CreateProduct({ categories, onDone, onError }) {
       </div>
       <div className="row gap-sm wrap">
         <label className="field grow"><span>Chất liệu</span><input value={f.material} onChange={(e) => setF({ ...f, material: e.target.value })} /></label>
-        <label className="field grow"><span>Ảnh (đường dẫn, cách nhau dấu phẩy)</span><input value={f.imageUrls} onChange={(e) => setF({ ...f, imageUrls: e.target.value })} /></label>
+      </div>
+      <div className="field">
+        <span>Ảnh sản phẩm (JPEG, PNG, WebP, tối đa 5 MB; ảnh đầu tiên là ảnh chính)</span>
+        <div className="img-picker">
+          {images.map((u, i) => (
+            <div key={u + i} className={'img-tile' + (i === 0 ? ' is-main' : '')}>
+              <img src={u} alt="" />
+              {i === 0 ? <span className="img-badge">Ảnh chính</span>
+                : <button type="button" className="img-act" onClick={() => makeMain(i)}>Đặt làm ảnh chính</button>}
+              <button type="button" className="img-del" aria-label="Bỏ ảnh" onClick={() => setImages(images.filter((_, j) => j !== i))}>×</button>
+            </div>
+          ))}
+          <button type="button" className="img-add" onClick={() => fileRef.current?.click()} disabled={uploading > 0}>
+            <span className="img-add-plus">+</span>
+            {uploading > 0 ? 'Đang tải lên...' : 'Tải ảnh từ máy'}
+          </button>
+          <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" multiple hidden onChange={onFiles} />
+        </div>
+        {imgError && <div className="alert alert-error">{imgError}</div>}
+        <div className="row gap-sm img-url">
+          <input placeholder="Hoặc dán đường dẫn ảnh, ví dụ /images/products/p1.jpg" value={urlInput} onChange={(e) => setUrlInput(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addUrl() } }} />
+          <button type="button" className="btn btn-ghost btn-sm" onClick={addUrl}>Thêm</button>
+        </div>
       </div>
       <label className="field"><span>Mô tả</span><textarea rows={2} value={f.description} onChange={(e) => setF({ ...f, description: e.target.value })} /></label>
-      <h4>Biến thể (ít nhất một, SKU không trùng)</h4>
+      <h4>Biến thể (ít nhất một)</h4>
+      <p className="muted small">SKU tự sinh theo danh mục, màu và size (ví dụ AVQ-TS03-TRG-M). Có thể sửa tay nếu cần; SKU trùng sẽ bị từ chối (BR17).</p>
+      <datalist id="known-colors">{Object.keys(COLOR_CODE).map((c) => <option key={c} value={c} />)}</datalist>
       {variants.map((v, i) => (
-        <div key={i} className="row gap-sm wrap">
+        <div key={i} className="row gap-sm wrap variant-row">
           <input required placeholder="Size" value={v.size} onChange={(e) => setV(i, 'size', e.target.value)} className="w-sm" />
-          <input required placeholder="Màu" value={v.color} onChange={(e) => setV(i, 'color', e.target.value)} />
-          <input required placeholder="SKU" value={v.sku} onChange={(e) => setV(i, 'sku', e.target.value)} />
+          <input required placeholder="Màu" list="known-colors" value={v.color} onChange={(e) => setV(i, 'color', e.target.value)} />
+          <input required placeholder={prefix ? 'SKU (nhập size và màu)' : 'SKU (chọn danh mục trước)'} value={skuOf(v)}
+            className={v.manual ? '' : 'sku-auto'} title={v.manual ? 'SKU nhập tay' : 'SKU tự sinh'}
+            onChange={(e) => setVariants(variants.map((x, j) => (j === i ? { ...x, sku: e.target.value, manual: true } : x)))} />
+          {v.manual && <button type="button" className="link-btn small" onClick={() => setVariants(variants.map((x, j) => (j === i ? { ...x, manual: false } : x)))}>Tự sinh lại</button>}
           <input required type="number" min="0" placeholder="Tồn" value={v.stock} onChange={(e) => setV(i, 'stock', e.target.value)} className="w-sm" />
           {variants.length > 1 && <button type="button" className="link-danger" onClick={() => setVariants(variants.filter((_, j) => j !== i))}>Xóa</button>}
         </div>
       ))}
       <div className="row gap">
-        <button type="button" className="btn btn-ghost btn-sm" onClick={() => setVariants([...variants, { size: '', color: '', sku: '', stock: 10 }])}>+ Thêm biến thể</button>
+        <button type="button" className="btn btn-ghost btn-sm" onClick={() => setVariants([...variants, { size: '', color: variants[variants.length - 1]?.color || '', sku: '', manual: false, stock: 10 }])}>+ Thêm biến thể</button>
         <button className="btn btn-primary" disabled={busy}>Lưu sản phẩm</button>
       </div>
     </form>

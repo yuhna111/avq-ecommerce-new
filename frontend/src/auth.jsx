@@ -19,6 +19,7 @@ export function AuthProvider({ children }) {
 
   const isCustomer = auth?.role === 'CUSTOMER'
   const isStaff = auth?.role === 'STAFF' || auth?.role === 'OWNER'
+  const isOwner = auth?.role === 'OWNER'
 
   const refreshCart = useCallback(async () => {
     if (!isCustomer) {
@@ -41,7 +42,7 @@ export function AuthProvider({ children }) {
   const logout = () => saveAuth(null)
 
   return (
-    <AuthContext.Provider value={{ auth, isCustomer, isStaff, login, logout, cartCount, setCartCount, refreshCart }}>
+    <AuthContext.Provider value={{ auth, isCustomer, isStaff, isOwner, login, logout, cartCount, setCartCount, refreshCart }}>
       {children}
     </AuthContext.Provider>
   )

@@ -44,6 +44,7 @@ public class SecurityConfig {
 						.requestMatchers("/api/payments/vnpay-ipn").permitAll()
 						.requestMatchers("/api/payments/mock/**").hasRole("CUSTOMER")
 						.requestMatchers("/api/cart/**", "/api/orders/**", "/api/account/**").hasRole("CUSTOMER")
+						.requestMatchers("/api/admin/staff/**").hasRole("OWNER") // quản lý nhân viên: chỉ chủ cửa hàng
 						.requestMatchers("/api/admin/**").hasRole("STAFF")
 						.requestMatchers("/api/**").denyAll()
 						.anyRequest().permitAll())
