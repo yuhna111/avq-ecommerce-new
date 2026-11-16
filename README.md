@@ -116,14 +116,14 @@ Chuẩn bị: backend và frontend đang chạy; nên mở một cửa sổ thư
 | # | Use case | Thao tác | Kết quả mong đợi (quy tắc) |
 |---|---|---|---|
 | 1 | UC04 Xem sản phẩm | Mở trang chủ khi chưa đăng nhập | Thấy 8 sản phẩm, không cần đăng nhập (BR03) |
-| 2 | UC05 Tìm, lọc | Gõ "jean" → Tìm; chọn danh mục "Áo thun", size "XL", sắp xếp "Giá tăng dần" | Danh sách thay đổi theo bộ lọc |
+| 2 | UC05 Tìm, lọc | Gõ "jean" vào ô tìm kiếm trên đầu trang → Enter; sau đó chọn danh mục "Áo thun", size "XL", sắp xếp "Giá tăng dần" | Danh sách thay đổi theo bộ lọc |
 | 3 | UC06 Chi tiết | Mở "Áo thun Oversize Street", chọn màu **Xám**, size **XL** | Hiện "Còn 1 sản phẩm" (biến thể còn 1 chiếc) |
 | 4 | UC07 Thêm vào giỏ khi chưa đăng nhập | Bấm "Thêm vào giỏ" | Chuyển sang trang đăng nhập (DT-02 R1) |
 | 5 | UC01 Đăng ký | `/dang-ky`: bỏ trống cả email lẫn SĐT; sau đó đăng ký bằng `khach@avq.vn` | Báo phải nhập email hoặc SĐT; email trùng → "Email/SĐT đã được đăng ký, vui lòng đăng nhập" (BR01, EX-04) |
 | 6 | UC02 Đăng nhập | Đăng nhập `0901234567` / `khach12345` | Vào được, tên hiện trên thanh đầu trang |
 | 7 | UC06a Gợi ý size | Ở "Áo thun Oversize Street": cao 175, nặng 70, kiểu mặc "Mặc vừa" | Gợi ý **M**: bảng size cho ra L, nhưng phom Oversize + mặc vừa nên lùi một size (FB-01) |
 | 8 | UC06a không có bảng size | "Đầm Midi Hoa Nhí" → Gợi ý size | "Liên hệ cửa hàng để được tư vấn size" |
-| 9 | UC07 Thêm vào giỏ (DT-02) | Không chọn size/màu → Thêm; chọn đủ → Thêm 2; Thêm 2 lần nữa | Nhắc chọn biến thể (R2); thêm dòng (R4); cộng dồn vẫn 1 dòng (R5, BR07) |
+| 9 | UC07 Thêm vào giỏ (DT-02) | Chưa chọn size (màu được chọn sẵn) → Thêm; chọn đủ → Thêm 2; Thêm 2 lần nữa | Nhắc chọn biến thể (R2); thêm dòng (R4); cộng dồn vẫn 1 dòng (R5, BR07) |
 | 10 | DT-02 R3 vượt tồn | Áo Oversize Xám XL (còn 1): thêm số lượng 2 | "Chỉ còn 1 sản phẩm size XL màu Xám" (EX-02) |
 | 11 | UC08 Sửa giỏ | Vào Giỏ hàng, bấm +/− , Xóa | Tạm tính cập nhật; tối đa 10 và không vượt tồn (BR05) |
 | 12 | UC09 Đặt hàng COD | Giỏ dưới 500.000 đ → Đặt hàng → chọn địa chỉ có sẵn → COD → Xác nhận | Màn xác nhận hiện phí giao 30.000 đ (DT-01); đơn ở **Chờ xác nhận** (BR10); tồn kho giảm (BR11) |

@@ -27,6 +27,31 @@ export const FIT_TYPE = { SLIM: 'Ôm (Slim)', REGULAR: 'Vừa (Regular)', OVERSI
 
 export const FIT_PREF = { OM: 'Mặc ôm', VUA: 'Mặc vừa', RONG: 'Mặc rộng' }
 
+// Mã màu hiển thị cho ô mẫu màu (tên màu lấy từ product_variants.color)
+const COLOR_HEX = {
+  'Đen': '#1c1d21',
+  'Trắng': '#ffffff',
+  'Xám': '#9aa0a8',
+  'Xanh nhạt': '#a9c7e8',
+  'Be': '#e3d3b8',
+  'Xanh đậm': '#24395c',
+  'Rêu': '#6b7045',
+  'Hồng': '#eab0bd',
+  'Xanh': '#5b8fd6',
+}
+export const colorHex = (name) => COLOR_HEX[name] || '#c9ced6'
+
+export function Swatch({ color, size = 16 }) {
+  return (
+    <span className="swatch" title={color} aria-label={color}
+      style={{ width: size, height: size, background: colorHex(color) }} />
+  )
+}
+
+// Cam kết dịch vụ: lấy đúng từ quy tắc nghiệp vụ (DT-01, BR10), không hứa chính sách không có trong thiết kế
+export const FREE_SHIP_FROM = 500000
+export const SHIPPING_FEE = 30000
+
 export function StatusBadge({ status }) {
   const s = ORDER_STATUS[status] || { label: status, tone: 'gray' }
   return <span className={'badge badge-' + s.tone}>{s.label}</span>
