@@ -6,7 +6,7 @@ Hai tiêu chí giảng viên kiểm tra:
 
 | Tiêu chí | Bằng chứng | Kết quả |
 |---|---|---|
-| **code ↔ design** | 63 lớp VP sinh được chép sang `backend/` và viết tiếp trên chính các file đó; 7 lớp thêm vào VP ngày 16/11 được viết tay theo đúng sơ đồ (B7). Script đối chiếu `vp/model.xml` với mã (mục 1.1) | 69/70 lớp có file cùng tên, cùng package (còn `SizeFeature`, xem L12); **117/117** phương thức và **107/107** thuộc tính trên sơ đồ có trong mã với đúng tên |
+| **code ↔ design** | 63 lớp VP sinh được chép sang `backend/` và viết tiếp trên chính các file đó; 7 lớp thêm vào VP ngày 16/11 được viết tay theo đúng sơ đồ (B7). Script đối chiếu `vp/model.xml` với mã (mục 1.1) | **70/70** lớp có file cùng tên, cùng package; **117/117** phương thức và **112/112** thuộc tính trên sơ đồ có trong mã với đúng tên |
 | **use DB?** | `spring.jpa.hibernate.ddl-auto=validate` trên `avq_db_vp` tạo từ `db/V2__vp_generated.sql`. Phép thử ngược: đổi sai tên một cột thì Hibernate chặn (`missing column [tracking_code_x] in table [orders]`) | Khởi động thành công; **18/18 bảng có entity**, **0 cột chưa ánh xạ** |
 
 Chiều phụ thuộc theo Hình 4.6, kiểm tra bằng `import`: `api → service`, `service → repository, infra, domain`, `infra → domain`, `repository → domain`. Domain chỉ dùng `jakarta.persistence`. Hai ngoại lệ có lý do được ghi ở L13 và L14.
@@ -19,7 +19,7 @@ Chiều phụ thuộc theo Hình 4.6, kiểm tra bằng `import`: `api → servi
 
 Sinh tự động từ `vp/model.xml` (model "5. Design") và mã trong `backend/src/main/java`. Cột "Hình" lấy từ các sơ đồ VP có chứa lớp (4.5 Design Class Diagram, 4.7–4.9 Layered Class Diagram).
 
-Tổng: **117/117** phương thức trên sơ đồ có mặt trong mã với đúng tên; 69/70 lớp có file cùng tên, cùng package; **107/107** thuộc tính trên sơ đồ có trường cùng tên trong mã.
+Tổng: **117/117** phương thức trên sơ đồ có mặt trong mã với đúng tên; 70/70 lớp có file cùng tên, cùng package; **112/112** thuộc tính trên sơ đồ có trường cùng tên trong mã.
 
 
 **Package `api`**
@@ -128,7 +128,7 @@ Tổng: **117/117** phương thức trên sơ đồ có mặt trong mã với đ
 | `PaymentGatewayClient` | 4.7 | *(khai báo lớp)* | [backend/src/main/java/infra/PaymentGatewayClient.java:6](../backend/src/main/java/infra/PaymentGatewayClient.java#L6) |
 | | | `buildPaymentUrl(order, txnRef)` | [:8](../backend/src/main/java/infra/PaymentGatewayClient.java#L8) |
 | | | `verifySignature(params)` | [:10](../backend/src/main/java/infra/PaymentGatewayClient.java#L10) |
-| `SizeFeature` | – | **KHÔNG CÓ FILE `infra/SizeFeature.java`** | |
+| `SizeFeatures` | 4.9 | *(khai báo lớp)* | [backend/src/main/java/infra/SizeFeatures.java:7](../backend/src/main/java/infra/SizeFeatures.java#L7) |
 | `TokenClaims` | 4.9 | *(khai báo lớp)* | [backend/src/main/java/infra/TokenClaims.java:4](../backend/src/main/java/infra/TokenClaims.java#L4) |
 | `VnPayClient` | 4.7 | *(khai báo lớp)* | [backend/src/main/java/infra/VnPayClient.java:23](../backend/src/main/java/infra/VnPayClient.java#L23) |
 | | | `buildPaymentUrl(order, txnRef)` | [:37](../backend/src/main/java/infra/VnPayClient.java#L37) |
@@ -500,7 +500,7 @@ Ngày 16/11 sinh viên đã cập nhật VP theo [`vp-changes.md`](vp-changes.md
 | L9 | `body_profiles` khóa chính = khóa ngoại `customer_id` (R8), lớp `BodyProfile` không có thuộc tính khóa | Thêm `BodyProfile.customerId` + `@MapsId` (CLAUDE.md mục 4) | Không bắt buộc (chi tiết ORM) |
 | L10 | Bảng `ai_inference_logs` (DB-R7) **chưa có lớp** tương ứng | Mã: entity `domain.AiInferenceLog` + enum `AiFeature` + `repository.AiInferenceLogRepository`; `SizeAdvisorService` lưu qua repository (`feature = SIZE`, `fallback_used = 1`, `input_hash` = SHA-256 số đo), thay cho JdbcTemplate | **Đã cập nhật VP (16/11).** Lớp, enum, repository và Dependency `SizeAdvisorService → AiInferenceLogRepository` (Hình 4.5, 4.9) |
 | L11 | Khóa ghép `order_items`, `cart_items` | Thêm 2 lớp khóa `OrderItemId`, `CartItemId` (`@IdClass`, khóa lấy từ hai quan hệ). Không thêm thuộc tính vào entity | Không bắt buộc |
-| L12 | DTO/kiểu chưa có trong VP mà tầng `infra` và `repository` dùng: `TokenClaims`, `SizeFeatures`, `AiSizeResult`, `ProductFilter` | Đặt trong `infra` và `repository` (không đặt ở `api.dto`) để không tạo phụ thuộc ngược lên `api` | **Đã cập nhật VP (16/11).** Đã thêm 4 lớp. **Còn lệch tên:** lớp trên VP tên `SizeFeature`, trong khi mã và kiểu tham số `predictSize(features : SizeFeatures, ...)` trên chính sơ đồ là `SizeFeatures` → cần đổi tên lớp trong VP |
+| L12 | DTO/kiểu chưa có trong VP mà tầng `infra` và `repository` dùng: `TokenClaims`, `SizeFeatures`, `AiSizeResult`, `ProductFilter` | Đặt trong `infra` và `repository` (không đặt ở `api.dto`) để không tạo phụ thuộc ngược lên `api` | **Đã cập nhật VP (16/11).** Đã thêm 4 lớp `TokenClaims`, `SizeFeatures`, `AiSizeResult`, `ProductFilter` (Hình 4.8, 4.9) |
 | L13 | `PaymentCallbackController.mockPay` dùng `infra.MockPaymentGatewayClient` (api → infra) | Cổng giả lập đóng vai hệ thống thanh toán bên ngoài gửi IPN đã ký; kết quả vẫn đi qua `PaymentService.handleCallback`. Chỉ có ở bản demo. Để giao dịch không mất khi khởi động lại máy chủ, trang `/mock-pay` gửi kèm các tham số `vnp_*` của link đã ký; controller đọc qua `HttpServletRequest` (tiêm qua constructor, **giữ nguyên chữ ký** `mockPay(code, success)`), cổng kiểm chữ ký rồi mới nhận lại (`restoreIssued`) | Không cần: lớp giả lập ngoài phạm vi thiết kế |
 | L14 | `api` và `service` dùng kiểu tham số `repository.ProductFilter`; `service` trả DTO thuộc `api.dto` | Chỉ là kiểu dữ liệu, controller không gọi repository. Phương án DTO trong `api.dto` theo CLAUDE.md 3.3 | Có thể tách package `dto` dùng chung |
 | L15 | Lớp hỗ trợ không có trong VP: `MockPaymentGatewayClient` (CLAUDE.md yêu cầu), `service.BusinessException`, `service.PaymentCallbackException`, `service.DtoMapper` | Lỗi nghiệp vụ có mã + thông báo tiếng Việt; chuyển entity sang DTO dùng chung | Không bắt buộc |
