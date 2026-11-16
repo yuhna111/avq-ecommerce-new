@@ -141,7 +141,7 @@ function ProductRow({ p, open, onToggle, onVisible, onSaved, onError }) {
 }
 
 function CreateProduct({ categories, onDone, onError }) {
-  const [f, setF] = useState({ name: '', categoryId: '', price: '', fitType: 'REGULAR', material: '', description: '', imageUrls: '/images/p1.svg' })
+  const [f, setF] = useState({ name: '', categoryId: '', price: '', fitType: 'REGULAR', material: '', description: '', imageUrls: '/images/products/p1.jpg' })
   const [variants, setVariants] = useState([{ size: 'M', color: '', sku: '', stock: 10 }])
   const [busy, setBusy] = useState(false)
 

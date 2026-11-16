@@ -31,7 +31,7 @@ INSERT INTO product_variants (product_id, sku, `size`, color, stock_qty, version
   (@p, 'AVQ-TS01-DEN-M', 'M', 'Đen', 23, 0),
   (@p, 'AVQ-TS01-DEN-L', 'L', 'Đen', 9, 0),
   (@p, 'AVQ-TS01-DEN-XL', 'XL', 'Đen', 12, 0);
-INSERT INTO product_images (product_id, url, is_main) VALUES (@p, '/images/p1.svg', 1), (@p, '/images/p1-2.svg', 0);
+INSERT INTO product_images (product_id, url, is_main) VALUES (@p, '/images/products/p1.jpg', 1), (@p, '/images/products/p1-2.jpg', 0);
 INSERT INTO size_charts (product_id, `size`, height_min, height_max, weight_min, weight_max) VALUES
   (@p, 'S', 150, 160, 45, 55),
   (@p, 'M', 160, 170, 55, 65),
@@ -51,7 +51,7 @@ INSERT INTO product_variants (product_id, sku, `size`, color, stock_qty, version
   (@p, 'AVQ-TS02-XAM-M', 'M', 'Xám', 13, 0),
   (@p, 'AVQ-TS02-XAM-L', 'L', 'Xám', 16, 0),
   (@p, 'AVQ-TS02-XAM-XL', 'XL', 'Xám', 1, 0);
-INSERT INTO product_images (product_id, url, is_main) VALUES (@p, '/images/p2.svg', 1), (@p, '/images/p2-2.svg', 0);
+INSERT INTO product_images (product_id, url, is_main) VALUES (@p, '/images/products/p2.jpg', 1), (@p, '/images/products/p2-2.jpg', 0);
 INSERT INTO size_charts (product_id, `size`, height_min, height_max, weight_min, weight_max) VALUES
   (@p, 'S', 150, 160, 45, 55),
   (@p, 'M', 160, 170, 55, 65),
@@ -71,7 +71,7 @@ INSERT INTO product_variants (product_id, sku, `size`, color, stock_qty, version
   (@p, 'AVQ-SM01-XNH-M', 'M', 'Xanh nhạt', 20, 0),
   (@p, 'AVQ-SM01-XNH-L', 'L', 'Xanh nhạt', 23, 0),
   (@p, 'AVQ-SM01-XNH-XL', 'XL', 'Xanh nhạt', 9, 0);
-INSERT INTO product_images (product_id, url, is_main) VALUES (@p, '/images/p3.svg', 1), (@p, '/images/p3-2.svg', 0);
+INSERT INTO product_images (product_id, url, is_main) VALUES (@p, '/images/products/p3.jpg', 1), (@p, '/images/products/p3-2.jpg', 0);
 INSERT INTO size_charts (product_id, `size`, height_min, height_max, weight_min, weight_max) VALUES
   (@p, 'S', 150, 160, 45, 55),
   (@p, 'M', 160, 170, 55, 65),
@@ -91,7 +91,7 @@ INSERT INTO product_variants (product_id, sku, `size`, color, stock_qty, version
   (@p, 'AVQ-SM02-TRG-M', 'M', 'Trắng', 10, 0),
   (@p, 'AVQ-SM02-TRG-L', 'L', 'Trắng', 13, 0),
   (@p, 'AVQ-SM02-TRG-XL', 'XL', 'Trắng', 16, 0);
-INSERT INTO product_images (product_id, url, is_main) VALUES (@p, '/images/p4.svg', 1), (@p, '/images/p4-2.svg', 0);
+INSERT INTO product_images (product_id, url, is_main) VALUES (@p, '/images/products/p4.jpg', 1), (@p, '/images/products/p4-2.jpg', 0);
 INSERT INTO size_charts (product_id, `size`, height_min, height_max, weight_min, weight_max) VALUES
   (@p, 'S', 150, 160, 45, 55),
   (@p, 'M', 160, 170, 55, 65),
@@ -111,7 +111,7 @@ INSERT INTO product_variants (product_id, sku, `size`, color, stock_qty, version
   (@p, 'AVQ-QJ01-XNH-30', '30', 'Xanh nhạt', 17, 0),
   (@p, 'AVQ-QJ01-XNH-31', '31', 'Xanh nhạt', 20, 0),
   (@p, 'AVQ-QJ01-XNH-32', '32', 'Xanh nhạt', 23, 0);
-INSERT INTO product_images (product_id, url, is_main) VALUES (@p, '/images/p5.svg', 1), (@p, '/images/p5-2.svg', 0);
+INSERT INTO product_images (product_id, url, is_main) VALUES (@p, '/images/products/p5.jpg', 1), (@p, '/images/products/p5-2.jpg', 0);
 INSERT INTO size_charts (product_id, `size`, height_min, height_max, weight_min, weight_max) VALUES
   (@p, '29', 155, 165, 45, 56),
   (@p, '30', 162, 170, 55, 63),
@@ -131,7 +131,7 @@ INSERT INTO product_variants (product_id, sku, `size`, color, stock_qty, version
   (@p, 'AVQ-QJ02-DEN-30', '30', 'Đen', 24, 0),
   (@p, 'AVQ-QJ02-DEN-31', '31', 'Đen', 10, 0),
   (@p, 'AVQ-QJ02-DEN-32', '32', 'Đen', 13, 0);
-INSERT INTO product_images (product_id, url, is_main) VALUES (@p, '/images/p6.svg', 1), (@p, '/images/p6-2.svg', 0);
+INSERT INTO product_images (product_id, url, is_main) VALUES (@p, '/images/products/p6.jpg', 1), (@p, '/images/products/p6-2.jpg', 0);
 INSERT INTO size_charts (product_id, `size`, height_min, height_max, weight_min, weight_max) VALUES
   (@p, '29', 155, 165, 45, 56),
   (@p, '30', 162, 170, 55, 63),
@@ -151,7 +151,7 @@ INSERT INTO product_variants (product_id, sku, `size`, color, stock_qty, version
   (@p, 'AVQ-AK01-REU-M', 'M', 'Rêu', 14, 0),
   (@p, 'AVQ-AK01-REU-L', 'L', 'Rêu', 17, 0),
   (@p, 'AVQ-AK01-REU-XL', 'XL', 'Rêu', 20, 0);
-INSERT INTO product_images (product_id, url, is_main) VALUES (@p, '/images/p7.svg', 1), (@p, '/images/p7-2.svg', 0);
+INSERT INTO product_images (product_id, url, is_main) VALUES (@p, '/images/products/p7.jpg', 1), (@p, '/images/products/p7-2.jpg', 0);
 INSERT INTO size_charts (product_id, `size`, height_min, height_max, weight_min, weight_max) VALUES
   (@p, 'S', 150, 160, 45, 55),
   (@p, 'M', 160, 170, 55, 65),
@@ -169,7 +169,7 @@ INSERT INTO product_variants (product_id, sku, `size`, color, stock_qty, version
   (@p, 'AVQ-VD01-XANH-S', 'S', 'Xanh', 18, 0),
   (@p, 'AVQ-VD01-XANH-M', 'M', 'Xanh', 21, 0),
   (@p, 'AVQ-VD01-XANH-L', 'L', 'Xanh', 24, 0);
-INSERT INTO product_images (product_id, url, is_main) VALUES (@p, '/images/p8.svg', 1), (@p, '/images/p8-2.svg', 0);
+INSERT INTO product_images (product_id, url, is_main) VALUES (@p, '/images/products/p8.jpg', 1), (@p, '/images/products/p8-2.jpg', 0);
 -- (Không có bảng size: minh họa FB-01 bước 4 "Liên hệ cửa hàng để được tư vấn size")
 
 -- Tài khoản khách hàng (mật khẩu khach12345, băm BCrypt)
