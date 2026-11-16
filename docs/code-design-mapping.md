@@ -485,7 +485,7 @@ Kết quả: 18/18 bảng có entity; số cột của các bảng đó chưa á
 
 ### 2.3. Lệch so với thiết kế
 
-Ngày 16/11 sinh viên đã cập nhật VP theo [`vp-changes.md`](vp-changes.md). Các dòng đánh dấu **Đã cập nhật VP** không còn lệch; các dòng còn lại vẫn lệch, có lý do.
+Ngày 16/11 sinh viên đã cập nhật VP theo [`vp-changes.md`](vp-changes.md). Các dòng **Đã cập nhật VP** không còn lệch. L6, L7 được **chốt** thành quyết định thiết kế trong [`design-notes.md`](design-notes.md) mục 9, nên mã, tài liệu và sơ đồ thống nhất. Các dòng còn lại (L9, L11, L13–L15, L17) là chi tiết cài đặt hoặc phần chỉ có ở bản demo, không cần đưa vào VP.
 
 | Mã | Chỗ lệch | Xử lý trong mã | Đề xuất cho VP |
 |---|---|---|---|
@@ -494,8 +494,8 @@ Ngày 16/11 sinh viên đã cập nhật VP theo [`vp-changes.md`](vp-changes.md
 | L3 | `PaymentService.handleCallback(params)` và `PaymentCallbackController.vnpayIpn(params)` **không khai báo kiểu trả về** trong model nên VP sinh `void`; design-notes ghi `: String` | Giữ `void`. Trả về bình thường = mã `00`; các mã `97/01/02/04` ném `PaymentCallbackException`, với `noRollbackFor` để vẫn lưu trạng thái "Sai lệch". `vnpayIpn` trả HTTP 200 và ghi nhật ký mã | **Đã cập nhật VP (16/11).** Cả hai khai báo `: void`; `design-notes.md` sửa theo |
 | L4 | Hình 4.7 **thiếu phương thức service** cho `OrderController.list/detail` và `AdminOrderController.list/detail` | Thêm 4 phương thức public vào `OrderService`: `listByCustomer`, `getDetail`, `listForStaff`, `getDetailForStaff` | **Đã cập nhật VP (16/11).** 4 phương thức có trên Hình 4.7 |
 | L5 | Hình 4.8 **thiếu phương thức service** cho `AdminProductController.listAll` | Thêm `ProductService.listAllForStaff()` | **Đã cập nhật VP (16/11).** Có trên Hình 4.8 |
-| L6 | `updateStatus(staffId, code, to, note)` không có tham số mã vận đơn, nhưng DB-R3 yêu cầu ghi `tracking_code` khi chuyển sang Đang giao | `OrderStateMachine.transit` tự sinh mã `VDyyMMddxxxxxx` khi chuyển sang `DANG_GIAO` | Vẫn lệch: chưa ghi chú trên VP. Phương án: hệ thống tự sinh |
-| L7 | DT-04 có "khách đổi sang COD" (Chờ thanh toán → Chờ xác nhận), nhưng thiết kế **không có phương thức** tương ứng | Không hiện thực (theo docs/business-rules.md). Khách chỉ có thể hủy rồi đặt lại | Vẫn lệch: chưa ghi chú trên VP. Phương án: ngoài phạm vi demo |
+| L6 | `updateStatus(staffId, code, to, note)` không có tham số mã vận đơn, nhưng DB-R3 yêu cầu ghi `tracking_code` khi chuyển sang Đang giao | `OrderStateMachine.transit` tự sinh mã `VDyyMMddxxxxxx` khi chuyển sang `DANG_GIAO` | **Đã chốt (16/11):** design-notes mục 9, QĐ1. Chữ ký trên sơ đồ giữ nguyên; hệ thống tự sinh mã. `business-rules.md` DT-04 ghi theo |
+| L7 | DT-04 có "khách đổi sang COD" (Chờ thanh toán → Chờ xác nhận), nhưng thiết kế **không có phương thức** tương ứng | Không hiện thực (theo docs/business-rules.md). Khách chỉ có thể hủy rồi đặt lại | **Đã chốt (16/11):** design-notes mục 9, QĐ2. Ngoài phạm vi demo; bảng DT-04 trong `business-rules.md` đã bỏ ô "khách đổi sang COD" |
 | L8 | `ChangeLog.of(staff, variant, field, old, new)` không nhận `product`, trong khi `product_id` NOT NULL. Thay đổi cấp sản phẩm (giá, mô tả) có `variant = null` | Mã đã theo chữ ký mới `of(staff, product, variant, field, oldValue, newValue)`; kiểm thử ở `ChangeLogServiceTest` | **Đã cập nhật VP (16/11).** Thêm tham số `product` |
 | L9 | `body_profiles` khóa chính = khóa ngoại `customer_id` (R8), lớp `BodyProfile` không có thuộc tính khóa | Thêm `BodyProfile.customerId` + `@MapsId` (CLAUDE.md mục 4) | Không bắt buộc (chi tiết ORM) |
 | L10 | Bảng `ai_inference_logs` (DB-R7) **chưa có lớp** tương ứng | Mã: entity `domain.AiInferenceLog` + enum `AiFeature` + `repository.AiInferenceLogRepository`; `SizeAdvisorService` lưu qua repository (`feature = SIZE`, `fallback_used = 1`, `input_hash` = SHA-256 số đo), thay cho JdbcTemplate | **Đã cập nhật VP (16/11).** Lớp, enum, repository và Dependency `SizeAdvisorService → AiInferenceLogRepository` (Hình 4.5, 4.9) |

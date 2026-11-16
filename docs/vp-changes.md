@@ -3,7 +3,7 @@
 > **Trạng thái 16/11 (Claude kiểm tra `vp/model.xml` sau khi sinh viên sửa): HOÀN TẤT.**
 > - Đã xong bước 1, 3–9, 10 (kiểu `void`), 13, 14, 15, `design-notes.md` và ảnh sơ đồ. Đối chiếu đạt 70/70 lớp, 117/117 phương thức, 112/112 thuộc tính; CSDL 18/18 bảng.
 > - Bước 2: sinh viên chọn **bỏ** thuộc tính `Staff.active` (giữ `isActive()`). Mã đã sửa theo.
-> - Không làm được: các ghi chú Documentation (bước 10, 11, 12). L6 và L7 vẫn được giải thích trong báo cáo đối chiếu.
+> - Các ghi chú Documentation (bước 10, 11, 12) không làm trên VP. Nội dung của chúng (mã vận đơn tự sinh, không hỗ trợ đổi sang COD) đã được chốt trong `design-notes.md` mục 9 (QĐ1, QĐ2).
 
 Mục đích: đưa sơ đồ VP về khớp với mã đã hiện thực, để giảng viên đối chiếu "code ↔ design" không thấy lệch.
 Mã lệch (L…/K…) trong ngoặc ứng với mục 2 của [`code-design-mapping.md`](code-design-mapping.md).

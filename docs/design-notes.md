@@ -53,7 +53,7 @@ Phương thức giữ lại trong entity chỉ thao tác trên dữ liệu của
 
 - Kiểu Java: `Long` (định danh), `String`, `BigDecimal` (tiền), `LocalDateTime`, `boolean`, `int` (số đếm).
 - Định danh các lớp đổi tên thành `id`.
-- Thêm thuộc tính: `Order.version`, `Order.trackingCode`, `ProductVariant.version`, `Product.fitType`, `Staff.active`.
+- Thêm thuộc tính: `Order.version`, `Order.trackingCode`, `ProductVariant.version`, `Product.fitType`. (`Staff.active` từng được thêm, đã bỏ ngày 16/11 vì bảng `staff` không có cột này; `Staff.isActive()` giữ lại.)
 - `isVisible`, `isMain` → `visible`, `main` (quy ước Java cho boolean).
 - 7 enum thay cho chuỗi: `OrderStatus`, `PaymentMethod`, `PaymentStatus`, `FitType`, `FitPref`, `StaffRole`, `ReturnReason`.
 - Stereotype: `User` là `MappedSuperclass`; 17 lớp còn lại là `Entity`.
@@ -85,7 +85,7 @@ Phương thức giữ lại trong entity chỉ thao tác trên dữ liệu của
 |---|---|---|
 | DB-R1 | `product_variants.version BIGINT NOT NULL DEFAULT 0` | `ProductVariant.version`: khóa lạc quan khi nhân viên cùng sửa tồn kho |
 | DB-R2 | `orders.version BIGINT NOT NULL DEFAULT 0` | `Order.version`: khóa lạc quan khi cùng đổi trạng thái đơn |
-| DB-R3 | `orders.tracking_code VARCHAR(40) NULL` | `Order.trackingCode`; `AdminOrderController.updateStatus` ghi khi chuyển sang Đang giao |
+| DB-R3 | `orders.tracking_code VARCHAR(40) NULL` | `Order.trackingCode`; hệ thống tự sinh trong `OrderStateMachine.transit` khi chuyển sang Đang giao (QĐ1, mục 9) |
 | DB-R4 | `CONSTRAINT ck_order_total CHECK (total = subtotal + shipping_fee)` | Bảo vệ kết quả `Order.recalculate()` |
 | DB-R5 | `idx_order_customer (customer_id, order_date)` | `OrderRepository.findByCustomerIdOrderByOrderDateDesc` |
 | DB-R5 | `idx_order_expiry (status, expires_at)` | `OrderRepository.findByStatusAndExpiresAtBefore` |
@@ -100,9 +100,15 @@ V1: 17 bảng, 20 khóa ngoại, 5 CHECK. V2: 18 bảng, 20 khóa ngoại, 6 CHE
 
 ## 8. Những điểm đã biết là chưa khớp (ghi vào báo cáo `code-design-mapping.md`)
 
-- Bảng `ai_inference_logs` chưa có lớp tương ứng trong thiết kế (đề xuất bổ sung lớp `AiInferenceLog` vào VP).
-- `version` trong thiết kế là `int`, cột CSDL là `BIGINT`: mã dùng `long`.
-- Mã VP sinh: trường quan hệ là `public`, dùng `ArrayList`, thiếu import, thiếu lớp DTO. Chỉnh khi hiện thực; nội dung thiết kế không đổi.
+Cập nhật 16/11, sau khi sửa VP theo `vp-changes.md`:
+
+- Đã giải quyết trên VP: lớp `AiInferenceLog` (+ `AiFeature`, `AiInferenceLogRepository`); `Category.slug`; bỏ `Staff.active` (bảng `staff` không có cột này); `ChangeLog.of` thêm `product`; 5 phương thức service còn thiếu; `handleCallback`/`vnpayIpn` : `void`; các kiểu `TokenClaims`, `SizeFeatures`, `AiSizeResult`, `ProductFilter`; Sequence 2.10 vẽ lại "trừ kho rồi mới tạo đơn".
+- Còn chỉnh kỹ thuật khi hiện thực (nội dung thiết kế không đổi): `version` là `int` trong thiết kế, cột CSDL `BIGINT` nên mã dùng `long`; mã VP sinh có trường quan hệ `public`, dùng `ArrayList`, thiếu import và DTO.
 - Instant Generator lưu phần lớn file vào thư mục gốc; đã sắp lại theo package (SHA-256 khớp 63/63).
-- DT-04 có "khách đổi sang COD" nhưng thiết kế chưa có phương thức này.
-- Sequence 2.10 (vẽ ở Chương 2) có thứ tự "tạo đơn rồi trừ kho"; thiết kế và mã dùng thứ tự ngược lại (xem mục 2).
+
+## 9. Quyết định thiết kế chốt (16/11)
+
+| Mã | Vấn đề | Quyết định | Lý do |
+|---|---|---|---|
+| QĐ1 | DB-R3 yêu cầu ghi `orders.tracking_code` khi chuyển sang "Đang giao", nhưng `AdminOrderController.updateStatus(staffId, code, to, note)` / `OrderService.updateStatusByStaff(...)` không có tham số mã vận đơn | **Hệ thống tự sinh** mã vận đơn trong `OrderStateMachine.transit` khi đơn chuyển sang `DANG_GIAO`, dạng `VDyyMMddxxxxxx` (ngày + 6 chữ số ngẫu nhiên) | Bản demo không kết nối đơn vị vận chuyển thật nên không có mã thật để nhập. Tự sinh giúp giữ nguyên chữ ký phương thức trên sơ đồ, và mọi đơn "Đang giao" đều có mã để khách tra cứu |
+| QĐ2 | DT-04 ghi "khách đổi sang COD" (Chờ thanh toán → Chờ xác nhận), nhưng thiết kế không có phương thức tương ứng | **Ngoài phạm vi bản demo.** Đơn ONLINE chưa thanh toán: khách thanh toán lại trong 15 phút, hoặc hủy (`cancelByCustomer`) rồi đặt đơn mới chọn COD. Quá hạn 15 phút thì `OrderExpiryScheduler` tự hủy và hoàn kho | Thêm phương thức ngoài sơ đồ sẽ làm lệch "code ↔ design". Hủy rồi đặt lại vẫn đạt mục tiêu của khách, kho được hoàn đúng (BR11), lịch sử trạng thái đầy đủ (BR14) |

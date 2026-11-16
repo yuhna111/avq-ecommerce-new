@@ -59,15 +59,15 @@ Trạng thái đơn trong mã dùng enum `OrderStatus`: `CHO_THANH_TOAN` (Chờ 
 
 | Từ \ Sang | Chờ xác nhận | Đang giao | Đã giao | Đã hủy |
 |---|---|---|---|---|
-| Chờ thanh toán | Hệ thống (thanh toán thành công) hoặc khách (đổi sang COD) | – | – | Khách, hệ thống |
+| Chờ thanh toán | Hệ thống (thanh toán thành công) | – | – | Khách, hệ thống |
 | Chờ xác nhận | – | Nhân viên | – | Khách, nhân viên |
 | Đang giao | – | – | Nhân viên | – |
 | Đã giao | – | – | – | – |
 
 - Ô "–" là chuyển trạng thái không hợp lệ: từ chối và không ghi lịch sử. "Đã giao", "Đã hủy" là trạng thái kết thúc.
 - Mỗi lần chuyển hợp lệ ghi một dòng `order_status_histories` (người thực hiện, thời điểm, ghi chú). Đơn mới tạo ghi `fromStatus = null`, ghi chú "Tạo đơn".
-- Chuyển sang "Đang giao" lưu mã vận đơn vào `orders.tracking_code`.
-- **Lưu ý:** trường hợp "khách đổi sang COD" từ "Chờ thanh toán" có trong DT-04 nhưng **chưa có phương thức tương ứng trong thiết kế** (Hình 4.7). Không tự thêm; ghi vào báo cáo lệch thiết kế như một hạn chế.
+- Chuyển sang "Đang giao" lưu mã vận đơn vào `orders.tracking_code`. Mã do hệ thống tự sinh, dạng `VDyyMMddxxxxxx` (design-notes QĐ1).
+- **Phạm vi:** "khách đổi sang COD" từ "Chờ thanh toán" **không thuộc bản demo** (design-notes QĐ2). Khách thanh toán lại trong 15 phút, hoặc hủy đơn rồi đặt đơn mới chọn COD.
 
 ### DT-05 — Xử lý kết quả thanh toán (BR10, NFR11)
 
