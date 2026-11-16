@@ -53,9 +53,9 @@ Tổng: **112/112** phương thức trên sơ đồ có mặt trong mã với đ
 | | | `list(customerId)` | [:42](../backend/src/main/java/api/OrderController.java#L42) |
 | | | `detail(customerId, code)` | [:47](../backend/src/main/java/api/OrderController.java#L47) |
 | | | `cancel(customerId, code, reason)` | [:53](../backend/src/main/java/api/OrderController.java#L53) |
-| `PaymentCallbackController` | 4.7 | *(khai báo lớp)* | [backend/src/main/java/api/PaymentCallbackController.java:25](../backend/src/main/java/api/PaymentCallbackController.java#L25) |
-| | | `vnpayIpn(params)` | [:37](../backend/src/main/java/api/PaymentCallbackController.java#L37) |
-| | | `mockPay(code, success)` | [:47](../backend/src/main/java/api/PaymentCallbackController.java#L47) |
+| `PaymentCallbackController` | 4.7 | *(khai báo lớp)* | [backend/src/main/java/api/PaymentCallbackController.java:27](../backend/src/main/java/api/PaymentCallbackController.java#L27) |
+| | | `vnpayIpn(params)` | [:43](../backend/src/main/java/api/PaymentCallbackController.java#L43) |
+| | | `mockPay(code, success)` | [:53](../backend/src/main/java/api/PaymentCallbackController.java#L53) |
 | `ProductController` | 4.8 | *(khai báo lớp)* | [backend/src/main/java/api/ProductController.java:18](../backend/src/main/java/api/ProductController.java#L18) |
 | | | `categories()` | [:26](../backend/src/main/java/api/ProductController.java#L26) |
 | | | `search(filter)` | [:32](../backend/src/main/java/api/ProductController.java#L32) |
@@ -485,7 +485,7 @@ Kết quả: 17/18 bảng có entity; số cột của các bảng đó chưa á
 | L10 | Bảng `ai_inference_logs` (DB-R7) **chưa có lớp** tương ứng | `SizeAdvisorService` ghi bằng `JdbcTemplate` (CLAUDE.md mục 4): `feature = SIZE`, `fallback_used = 1`, `input_hash` = SHA-256 số đo | Thêm lớp `AiInferenceLog` (+ repository) vào VP |
 | L11 | Khóa ghép `order_items`, `cart_items` | Thêm 2 lớp khóa `OrderItemId`, `CartItemId` (`@IdClass`, khóa lấy từ hai quan hệ). Không thêm thuộc tính vào entity | Không bắt buộc |
 | L12 | DTO/kiểu chưa có trong VP mà tầng `infra` và `repository` dùng: `TokenClaims`, `SizeFeatures`, `AiSizeResult`, `ProductFilter` | Đặt trong `infra` và `repository` (không đặt ở `api.dto`) để không tạo phụ thuộc ngược lên `api` | Thêm các lớp này vào sơ đồ |
-| L13 | `PaymentCallbackController.mockPay` dùng `infra.MockPaymentGatewayClient` (api → infra) | Cổng giả lập đóng vai hệ thống thanh toán bên ngoài gửi IPN đã ký; kết quả vẫn đi qua `PaymentService.handleCallback`. Chỉ có ở bản demo | Không cần: lớp giả lập ngoài phạm vi thiết kế |
+| L13 | `PaymentCallbackController.mockPay` dùng `infra.MockPaymentGatewayClient` (api → infra) | Cổng giả lập đóng vai hệ thống thanh toán bên ngoài gửi IPN đã ký; kết quả vẫn đi qua `PaymentService.handleCallback`. Chỉ có ở bản demo. Để giao dịch không mất khi khởi động lại máy chủ, trang `/mock-pay` gửi kèm các tham số `vnp_*` của link đã ký; controller đọc qua `HttpServletRequest` (tiêm qua constructor, **giữ nguyên chữ ký** `mockPay(code, success)`), cổng kiểm chữ ký rồi mới nhận lại (`restoreIssued`) | Không cần: lớp giả lập ngoài phạm vi thiết kế |
 | L14 | `api` và `service` dùng kiểu tham số `repository.ProductFilter`; `service` trả DTO thuộc `api.dto` | Chỉ là kiểu dữ liệu, controller không gọi repository. Phương án DTO trong `api.dto` theo CLAUDE.md 3.3 | Có thể tách package `dto` dùng chung |
 | L15 | Lớp hỗ trợ không có trong VP: `MockPaymentGatewayClient` (CLAUDE.md yêu cầu), `service.BusinessException`, `service.PaymentCallbackException`, `service.DtoMapper` | Lỗi nghiệp vụ có mã + thông báo tiếng Việt; chuyển entity sang DTO dùng chung | Không bắt buộc |
 | L16 | Sequence 2.10 (Chương 2) vẽ "tạo đơn rồi trừ kho" | Mã làm ngược lại: **trừ kho trước** (`StockService.reserve` trước khi lưu đơn), theo design-notes và CLAUDE.md, để tránh deadlock | Vẽ lại Sequence 2.10 theo thứ tự mới |
@@ -507,7 +507,12 @@ Chạy `.\mvnw.cmd test` trong `backend/`. Kiểm thử tích hợp chạy trên
 | `service.LastItemConcurrencyTest` | 1 | Đạt | **BR11**: 10 khách cùng lúc đặt chiếc cuối cùng → đúng 1 đơn thành công, 9 lỗi `OUT_OF_STOCK`, tồn kho về 0 |
 | `service.SizeAdvisorServiceTest` | 2 | Đạt | **FB-01** qua service: dùng bảng size, ghi `ai_inference_logs` (`fallback_used = 1`, `input_hash` 64 ký tự), lưu số đo khi khách đồng ý; sản phẩm không có bảng size |
 | `repository.RepositoryQueryTest` | 6 | Đạt | `findByEmailOrPhone`, `decreaseIfEnough`/`increase` (+ version), `search` (từ khóa, danh mục, size, giá, ẩn/hiện), truy vấn đơn theo khách / mã / quá hạn, `existsByTxnRef`, `findTopByOrderIdOrderByIdDesc`, bảng size theo thứ tự, `findBySlug` |
+| `infra.MockGatewayRestoreTest` | 2 | Đạt | Cổng giả lập: sau khi khởi động lại, link đã ký khôi phục được giao dịch (IPN ký đúng, số tiền đúng); link bị sửa số tiền thì bị từ chối |
 | `api.ApiSecurityTest` | 4 | Đạt | **BR03** xem sản phẩm không cần đăng nhập; **BR15** tách quyền khách/nhân viên (401/403), token giả bị từ chối; lỗi trả JSON `{code, message}`; luồng HTTP đặt hàng ONLINE → thanh toán giả lập → nhân viên giao hàng → khách không hủy được |
-| **Tổng** | **54** | **54/54 đạt** | |
+| **Tổng** | **56** | **56/56 đạt** | |
 
-Ngoài ra đã chạy kịch bản E2E 21 bước qua proxy Vite (cùng các lời gọi giao diện thực hiện) trên backend thật: tất cả đạt, dữ liệu thử đã dọn khỏi CSDL demo.
+Ngoài ra trên backend thật (dữ liệu thử đã dọn khỏi CSDL demo sau mỗi lần chạy):
+
+- Kịch bản E2E 21 bước qua proxy Vite (cùng các lời gọi giao diện thực hiện): tất cả đạt.
+- Chạy giao diện thật bằng Chrome headless (puppeteer-core), 19 bước: trang chủ, tìm kiếm, chưa đăng nhập bị chuyển sang đăng nhập, gợi ý size, chọn biến thể, giỏ hàng, xác nhận đặt hàng ONLINE, cổng giả lập, thanh toán thành công, đơn của tôi, đăng xuất, nhân viên đăng nhập, xem đơn, chuyển Đang giao (sinh mã vận đơn), sản phẩm & tồn kho, bố cục điện thoại 390px không tràn ngang: tất cả đạt, 0 lỗi console.
+- Khởi động lại backend giữa lúc đặt đơn ONLINE và lúc thanh toán: đơn vẫn thanh toán được, chuyển sang Chờ xác nhận.

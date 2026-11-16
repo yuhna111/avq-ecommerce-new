@@ -1,8 +1,10 @@
 package api;
 
 import api.dto.IpnResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import infra.MockPaymentGatewayClient;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,10 +28,14 @@ public class PaymentCallbackController {
 	private static final Logger log = LoggerFactory.getLogger(PaymentCallbackController.class);
 	private final PaymentService paymentService;
 	private final Optional<MockPaymentGatewayClient> mockGateway;
+	/** Proxy request hiện tại (Spring tiêm): đọc các tham số vnp_* của link đã ký mà không đổi chữ ký mockPay. */
+	private final HttpServletRequest request;
 
-	public PaymentCallbackController(PaymentService paymentService, Optional<MockPaymentGatewayClient> mockGateway) {
+	public PaymentCallbackController(PaymentService paymentService, Optional<MockPaymentGatewayClient> mockGateway,
+			HttpServletRequest request) {
 		this.paymentService = paymentService;
 		this.mockGateway = mockGateway;
+		this.request = request;
 	}
 
 	/** IPN từ VNPay (thiết kế: void). Mã DT-05 được ghi nhật ký; HTTP 200. */
@@ -47,6 +53,10 @@ public class PaymentCallbackController {
 	public IpnResponse mockPay(@PathVariable String code, @RequestParam boolean success) {
 		MockPaymentGatewayClient gateway = mockGateway.orElseThrow(
 				() -> service.BusinessException.notFound("MOCK_DISABLED", "Cổng thanh toán giả lập đang tắt"));
+		Map<String, String> link = signedLinkParams();
+		if (code.equals(link.get("vnp_TxnRef"))) {
+			gateway.restoreIssued(link); // link đã ký: khôi phục giao dịch sau khi máy chủ khởi động lại
+		}
 		Map<String, String> ipn = gateway.simulateCallback(code, success);
 		if (ipn == null) {
 			return new IpnResponse("01", "Không tìm thấy giao dịch cho đơn " + code + " (hãy đặt lại đơn)");
@@ -57,5 +67,16 @@ public class PaymentCallbackController {
 		} catch (PaymentCallbackException e) {
 			return new IpnResponse(e.getRspCode(), e.getMessage());
 		}
+	}
+
+	/** Các tham số vnp_* (link thanh toán đã ký) mà trang /mock-pay gửi kèm trên query string. */
+	private Map<String, String> signedLinkParams() {
+		Map<String, String> p = new TreeMap<String, String>();
+		request.getParameterMap().forEach((k, v) -> {
+			if (k.startsWith("vnp_") && v.length > 0) {
+				p.put(k, v[0]);
+			}
+		});
+		return p;
 	}
 }

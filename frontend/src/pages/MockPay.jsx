@@ -16,7 +16,9 @@ export default function MockPay() {
     setBusy(true)
     setError('')
     try {
-      setResult(await api('/payments/mock/' + code, { method: 'POST', params: { success } }))
+      // Gửi kèm link đã ký để cổng nhận lại giao dịch nếu backend vừa khởi động lại
+      const link = Object.fromEntries([...params.entries()].filter(([k]) => k.startsWith('vnp_')))
+      setResult(await api('/payments/mock/' + code, { method: 'POST', params: { ...link, success } }))
     } catch (e) {
       setError(e.message)
     } finally {

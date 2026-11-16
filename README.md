@@ -79,7 +79,7 @@ cd backend
 
 Thấy dòng `Started AvqApplication` là xong. Nếu mã không khớp CSDL, ứng dụng sẽ dừng ngay với lỗi `Schema-validation`; chạy được chính là bằng chứng mã khớp CSDL.
 
-Chạy kiểm thử (54 test: đơn vị + tích hợp trên MySQL, tự rollback, không để lại dữ liệu):
+Chạy kiểm thử (56 test: đơn vị + tích hợp trên MySQL, tự rollback, không để lại dữ liệu):
 
 ```powershell
 .\mvnw.cmd test
@@ -163,6 +163,6 @@ mysql -u root -p --default-character-set=utf8mb4 avq_db_vp -e "SELECT order_code
 
 ## 3. Ghi chú
 
-- Cổng thanh toán giả lập giữ danh sách giao dịch trong bộ nhớ: nếu khởi động lại backend thì đơn trực tuyến cũ không thanh toán tiếp được (trang giả lập báo mã 01). Hãy đặt đơn mới; đơn cũ sẽ tự hủy sau 15 phút.
+- Cổng thanh toán giả lập: nếu khởi động lại backend, đơn trực tuyến đang chờ vẫn thanh toán tiếp được từ trang giả lập (link thanh toán có chữ ký HMAC nên cổng nhận lại được giao dịch). Đơn quá 15 phút chưa thanh toán sẽ tự hủy.
 - Token đăng nhập hết hạn sau 30 phút; giao diện tự đăng xuất khi token hết hạn.
 - Đổi cổng thanh toán: `payment.provider=vnpay` (cần cấu hình `payment.vnpay.*`); bản demo mặc định `mock`.

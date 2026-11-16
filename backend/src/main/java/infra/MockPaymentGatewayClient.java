@@ -44,6 +44,23 @@ public class MockPaymentGatewayClient extends VnPayClient {
 	}
 
 	/**
+	 * Nhận lại link thanh toán đã ký do chính cổng phát hành (trang /mock-pay gửi kèm các tham số vnp_*).
+	 * Dùng khi bộ nhớ "issued" bị mất do khởi động lại máy chủ. Chữ ký sai hoặc thiếu tham số thì bỏ qua.
+	 */
+	public boolean restoreIssued(Map<String, String> linkParams) {
+		if (linkParams == null || !verifySignature(linkParams)) {
+			return false;
+		}
+		String txnRef = linkParams.get("vnp_TxnRef");
+		String amount = linkParams.get("vnp_Amount");
+		if (txnRef == null || amount == null || !amount.matches("\\d+")) {
+			return false;
+		}
+		issued.putIfAbsent(txnRef, new BigDecimal(amount).movePointLeft(2));
+		return true;
+	}
+
+	/**
 	 * Mô phỏng IPN từ cổng: vnp_ResponseCode "00" (thành công) hoặc "24" (khách hủy giao dịch).
 	 * Trả về null nếu cổng chưa phát hành link cho mã này (ví dụ sau khi khởi động lại máy chủ).
 	 */

@@ -209,7 +209,8 @@ input:disabled { background: #f3f4f6; color: var(--muted); }
   .shop, .detail, .cart-layout, .edit-grid { grid-template-columns: 1fr; }
   .filters, .summary { position: static; }
   .header-inner { flex-wrap: wrap; height: auto; padding: 10px 16px; gap: 10px; }
-  .nav { order: 3; width: 100%; overflow-x: auto; }
+  .nav { order: 3; flex: 1 0 100%; overflow-x: auto; }
+  .user-box { margin-left: auto; }
   .user-name { display: none; }
   .cart-line { grid-template-columns: 60px 1fr; }
   .toolbar { flex-direction: column; }
