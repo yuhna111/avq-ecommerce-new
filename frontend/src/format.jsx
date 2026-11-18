@@ -18,7 +18,7 @@ export const PAYMENT_STATUS = {
   DANG_XU_LY: 'Đang xử lý',
   THANH_CONG: 'Thành công',
   THAT_BAI: 'Thất bại',
-  SAI_LECH: 'Sai lệch số tiền',
+  SAI_LECH: 'Sai lệch, cần cửa hàng kiểm tra',
 }
 
 export const PAYMENT_METHOD = { COD: 'Thanh toán khi nhận hàng (COD)', ONLINE: 'Thanh toán trực tuyến' }

@@ -79,7 +79,7 @@ cd backend
 
 Thấy dòng `Started AvqApplication` là xong. Nếu mã không khớp CSDL, ứng dụng sẽ dừng ngay với lỗi `Schema-validation`; chạy được chính là bằng chứng mã khớp CSDL.
 
-Chạy kiểm thử (58 test: đơn vị + tích hợp trên MySQL, tự rollback, không để lại dữ liệu):
+Chạy kiểm thử (69 test: đơn vị + tích hợp trên MySQL, tự rollback, không để lại dữ liệu):
 
 ```powershell
 .\mvnw.cmd test
@@ -131,6 +131,7 @@ Chuẩn bị: backend và frontend đang chạy; nên mở một cửa sổ thư
 | 14 | UC09 + UC10 Thanh toán trực tuyến | Đặt hàng → "Thanh toán trực tuyến" | Chuyển tới cổng **AVQPay (giả lập)**; đơn ở **Chờ thanh toán**, hạn 15 phút |
 | 15 | DT-05 thất bại | Bấm "Hủy / thất bại" → Xem đơn | Thanh toán "Thất bại", đơn vẫn Chờ thanh toán, có nút "Thanh toán ngay" (EX-03) |
 | 16 | DT-05 thành công | "Thanh toán ngay" → "Thanh toán thành công" | Đơn sang **Chờ xác nhận**, thanh toán "Thành công"; lịch sử ghi mã giao dịch |
+| 16a | BR15 thanh toán đơn người khác | Ghi lại mã đơn vừa đặt; đăng ký và đăng nhập một tài khoản khách khác (cửa sổ ẩn danh), mở link `/mock-pay?vnp_TxnRef=<mã đơn của khách kia>` → "Thanh toán thành công" | Bị từ chối "Không tìm thấy đơn hàng"; đơn kia không đổi |
 | 17 | UC11 Theo dõi đơn | Menu "Đơn của tôi" → mở một đơn | Thấy chi tiết, giá đã chốt (BR08), lịch sử trạng thái (dòng đầu "Tạo đơn") |
 | 18 | UC12 Hủy đơn | Đơn Chờ xác nhận → "Hủy đơn hàng" | Đơn **Đã hủy**, tồn kho được hoàn (BR11, BR13) |
 | 19 | BR12 Tự hủy quá hạn | Đặt một đơn trực tuyến rồi **không** thanh toán, đợi 15 phút (bộ hẹn giờ chạy mỗi 60 giây) | Đơn tự chuyển **Đã hủy** với ghi chú "Hệ thống tự hủy", tồn kho hoàn lại |

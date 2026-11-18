@@ -78,6 +78,7 @@ Trạng thái đơn trong mã dùng enum `OrderStatus`: `CHO_THANH_TOAN` (Chờ 
 | Có | Có | Thành công | Không | Ghi "Thành công" (`markResult(true)`), đơn sang "Chờ xác nhận" | `00` |
 | Có | Có | Thất bại | Không | Ghi "Thất bại" (`markResult(false)`), đơn giữ "Chờ thanh toán" | `00` |
 | Có | Có | – | Có | Bỏ qua (kết quả trùng, `txn_ref` đã có) | `02` |
+| Có | Có | Thành công | Không, nhưng đơn **không còn** "Chờ thanh toán" (đã tự hủy do quá hạn, hoặc đã thanh toán) | Ghi "Sai lệch" (`markMismatch`) để nhân viên hoàn tiền; đơn giữ nguyên, không trừ kho lại *(bổ sung 18/11)* | `02` |
 
 Không tìm thấy đơn theo mã: mã `01`.
 

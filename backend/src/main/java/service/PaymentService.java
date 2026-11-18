@@ -78,9 +78,18 @@ public class PaymentService {
 
 		boolean success = "00".equals(params.get("vnp_ResponseCode"))
 				&& (params.get("vnp_TransactionStatus") == null || "00".equals(params.get("vnp_TransactionStatus")));
+		if (success && order.getStatus() != OrderStatus.CHO_THANH_TOAN) {
+			// Khách đã trả tiền nhưng đơn không còn chờ thanh toán (đã tự hủy do quá hạn, hoặc đã thanh toán
+			// bằng giao dịch khác): không hồi sinh đơn (kho đã hoàn), ghi "Sai lệch" để nhân viên kiểm tra, hoàn tiền.
+			payment.markMismatch(txnRef);
+			paymentRepository.save(payment);
+			log.warn("Đơn {} đang ở trạng thái {} nhưng cổng báo thanh toán thành công (mã GD {}) - cần nhân viên hoàn tiền",
+					orderCode, order.getStatus(), txnRef);
+			throw new PaymentCallbackException("02", "Order already confirmed");
+		}
 		payment.markResult(success, txnRef);
 		paymentRepository.save(payment);
-		if (success && order.getStatus() == OrderStatus.CHO_THANH_TOAN) {
+		if (success) {
 			orderStateMachine.transit(order, OrderStatus.CHO_XAC_NHAN, null,
 					"Thanh toán trực tuyến thành công (mã GD " + txnRef + ")");
 		}

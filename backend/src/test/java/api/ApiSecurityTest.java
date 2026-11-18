@@ -44,7 +44,11 @@ class ApiSecurityTest {
 	}
 
 	private String register() throws Exception {
-		String body = "{\"fullName\":\"Khách API\",\"email\":\"api-" + fx.tag() + "@avq.test\",\"password\":\"matkhau123\"}";
+		return register("api-" + fx.tag() + "@avq.test");
+	}
+
+	private String register(String email) throws Exception {
+		String body = "{\"fullName\":\"Khách API\",\"email\":\"" + email + "\",\"password\":\"matkhau123\"}";
 		String res = mvc.perform(post("/api/auth/register").contentType(MediaType.APPLICATION_JSON).content(body))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.role").value("CUSTOMER"))
 				.andReturn().getResponse().getContentAsString();
@@ -138,6 +142,32 @@ class ApiSecurityTest {
 				.andExpect(jsonPath("$.trackingCode").exists());
 		mvc.perform(post("/api/orders/" + code + "/cancel").header("Authorization", customer))
 				.andExpect(status().isConflict()).andExpect(jsonPath("$.code").value("CANCEL_NOT_ALLOWED"));
+	}
+
+	/** BR15: khách không giả lập thanh toán được đơn của người khác; đơn không còn chờ thanh toán thì bị từ chối. */
+	@Test
+	void thanhToanGiaLap_chiChuDon_vaChiDonChoThanhToan() throws Exception {
+		Product p = fx.product(fx.category(), "Áo chủ đơn", 250_000, 5);
+		em.flush();
+		String owner = register();
+		String other = register("khac-" + fx.tag() + "@avq.test");
+		Long variantId = fx.variant(p).getId();
+		mvc.perform(post("/api/cart/items").header("Authorization", owner)
+						.param("variantId", variantId.toString()).param("qty", "1"))
+				.andExpect(status().isOk());
+		String placed = mvc.perform(post("/api/orders").header("Authorization", owner).contentType(MediaType.APPLICATION_JSON)
+						.content("{\"receiverName\":\"Lê C\",\"receiverPhone\":\"0987654321\",\"shippingAddress\":\"Huế\",\"paymentMethod\":\"ONLINE\"}"))
+				.andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+		String code = json.readTree(placed).get("orderCode").asText();
+
+		mvc.perform(post("/api/payments/mock/" + code).header("Authorization", other).param("success", "true"))
+				.andExpect(status().isNotFound()).andExpect(jsonPath("$.code").value("ORDER_NOT_FOUND"));
+		mvc.perform(get("/api/orders/" + code).header("Authorization", owner))
+				.andExpect(jsonPath("$.status").value("CHO_THANH_TOAN"));
+
+		mvc.perform(post("/api/orders/" + code + "/cancel").header("Authorization", owner)).andExpect(status().isOk());
+		mvc.perform(post("/api/payments/mock/" + code).header("Authorization", owner).param("success", "true"))
+				.andExpect(status().isConflict()).andExpect(jsonPath("$.code").value("ORDER_NOT_PENDING"));
 	}
 
 	/** Bổ sung 17/11: quản lý nhân viên chỉ dành cho chủ cửa hàng (BR02). */

@@ -271,4 +271,25 @@ class OrderAndPaymentServiceTest extends ServiceTestBase {
 		assertThat(paymentRepository.findTopByOrderIdOrderByIdDesc(o.getId()).orElseThrow().getStatus())
 				.isEqualTo(PaymentStatus.SAI_LECH);
 	}
+
+	/** Thanh toán thành công đến SAU khi đơn đã tự hủy (BR12): không hồi sinh đơn, ghi "Sai lệch" để hoàn tiền, mã 02. */
+	@Test
+	void dt05_thanhCongSauKhiDonDaHuy_02_ghiSaiLech_donVanHuy() {
+		Customer c = fx.customer();
+		ProductVariant v = fx.variant(fx.product(fx.category(), "Áo trễ hạn", 250_000, 5));
+		em.flush();
+		String code = placeOnline(c, v);
+		Map<String, String> lateIpn = mockGateway.simulateCallback(code, true);
+		orderService.expireOverdue(LocalDateTime.now().plusMinutes(16));
+		assertThat(stock(v)).isEqualTo(5);
+
+		assertThat(callback(lateIpn)).isEqualTo("02");
+		Order o = orderRepository.findByOrderCode(code).orElseThrow();
+		assertThat(o.getStatus()).isEqualTo(OrderStatus.DA_HUY);
+		Payment pay = paymentRepository.findTopByOrderIdOrderByIdDesc(o.getId()).orElseThrow();
+		assertThat(pay.getStatus()).isEqualTo(PaymentStatus.SAI_LECH);
+		assertThat(pay.getTxnRef()).isEqualTo(lateIpn.get("vnp_TransactionNo"));
+		assertThat(stock(v)).isEqualTo(5); // kho không bị trừ lại
+		assertThat(callback(lateIpn)).isEqualTo("02"); // cổng gửi lại -> bỏ qua
+	}
 }
