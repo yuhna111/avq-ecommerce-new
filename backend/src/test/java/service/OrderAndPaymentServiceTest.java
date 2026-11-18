@@ -182,6 +182,25 @@ class OrderAndPaymentServiceTest extends ServiceTestBase {
 		assertThat(stock(v)).isEqualTo(5);
 	}
 
+	/** UC20: danh sách đơn cho nhân viên lọc theo trạng thái ngay trong CSDL, mới nhất trước. */
+	@Test
+	void uc20_listForStaff_locTheoTrangThai() {
+		Customer c = fx.customer();
+		ProductVariant v = fx.variant(fx.product(fx.category(), "Áo lọc đơn", 100_000, 10));
+		em.flush();
+		cartService.addToCart(c.getId(), v.getId(), 1);
+		String cod = orderService.place(c.getId(), req(PaymentMethod.COD)).orderCode();
+		cartService.addToCart(c.getId(), v.getId(), 1);
+		String online = orderService.place(c.getId(), req(PaymentMethod.ONLINE)).orderCode();
+		em.flush();
+
+		List<String> pending = orderService.listForStaff(OrderStatus.CHO_THANH_TOAN).stream().map(o -> o.orderCode()).toList();
+		assertThat(pending).contains(online).doesNotContain(cod);
+		assertThat(orderService.listForStaff(OrderStatus.CHO_THANH_TOAN)).allMatch(o -> o.status() == OrderStatus.CHO_THANH_TOAN);
+		List<String> all = orderService.listForStaff(null).stream().map(o -> o.orderCode()).toList();
+		assertThat(all).contains(cod, online);
+	}
+
 	// ---------- DT-05 ----------
 
 	private String placeOnline(Customer c, ProductVariant v) {

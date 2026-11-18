@@ -20,6 +20,8 @@ import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -206,10 +208,18 @@ public class OrderService {
 
 	@Transactional(readOnly = true)
 	public List<OrderSummaryDto> listForStaff(OrderStatus status) {
-		return orderRepository.findAll(Sort.by(Sort.Direction.DESC, "orderDate")).stream()
-				.filter(o -> status == null || o.getStatus() == status)
-				.map(DtoMapper::orderSummary)
-				.toList();
+		Sort newestFirst = Sort.by(Sort.Direction.DESC, "orderDate");
+		List<Order> orders;
+		if (status == null) {
+			orders = orderRepository.findAll(newestFirst);
+		} else {
+			// Lọc trong CSDL (WHERE status = ?) bằng findAll(Example, Sort) kế thừa từ JpaRepository,
+			// không thêm phương thức vào OrderRepository. Bỏ qua "version" (kiểu long, mặc định 0).
+			Order probe = new Order();
+			probe.setStatus(status);
+			orders = orderRepository.findAll(Example.of(probe, ExampleMatcher.matching().withIgnorePaths("version")), newestFirst);
+		}
+		return orders.stream().map(DtoMapper::orderSummary).toList();
 	}
 
 	@Transactional(readOnly = true)

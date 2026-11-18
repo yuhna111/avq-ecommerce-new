@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
@@ -26,8 +28,15 @@ public class MockPaymentGatewayClient extends VnPayClient {
 	/** txnRef (mã đơn) -> số tiền đã phát hành link thanh toán (giữ trong bộ nhớ, đủ cho demo). */
 	private final Map<String, BigDecimal> issued = new ConcurrentHashMap<String, BigDecimal>();
 
-	public MockPaymentGatewayClient(@Value("${payment.mock.hash-secret:AVQ-MOCK-GATEWAY-SECRET}") String hashSecret) {
+	private static final Logger log = LoggerFactory.getLogger(MockPaymentGatewayClient.class);
+	/** Khóa mặc định chỉ để bản demo chạy ngay; nên đặt payment.mock.hash-secret trong application-local.yml. */
+	static final String DEFAULT_SECRET = "AVQ-MOCK-GATEWAY-SECRET";
+
+	public MockPaymentGatewayClient(@Value("${payment.mock.hash-secret:" + DEFAULT_SECRET + "}") String hashSecret) {
 		super("/mock-pay", "AVQMOCK", hashSecret);
+		if (DEFAULT_SECRET.equals(hashSecret)) {
+			log.warn("Cổng thanh toán giả lập đang dùng khóa ký mặc định; đặt payment.mock.hash-secret trong application-local.yml");
+		}
 	}
 
 	@Override

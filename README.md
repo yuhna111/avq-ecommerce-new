@@ -68,7 +68,7 @@ Copy-Item backend\src\main\resources\application-local.example.yml backend\src\m
 notepad backend\src\main\resources\application-local.yml
 ```
 
-Điền mật khẩu MySQL vào `password`, đổi `jwt.secret` thành chuỗi ngẫu nhiên dài ít nhất 32 ký tự. File `application-local.yml` đã nằm trong `.gitignore`, không đưa lên git.
+Điền mật khẩu MySQL vào `password`, đổi `jwt.secret` thành chuỗi ngẫu nhiên dài ít nhất 32 ký tự và `payment.mock.hash-secret` (khóa ký của cổng thanh toán giả lập) thành chuỗi của riêng bạn. Bỏ trống khóa cổng giả lập thì backend dùng khóa mặc định và ghi cảnh báo khi khởi động. File `application-local.yml` đã nằm trong `.gitignore`, không đưa lên git.
 
 ### 1.5. Chạy backend (cổng 8080)
 
@@ -77,9 +77,9 @@ cd backend
 .\mvnw.cmd spring-boot:run
 ```
 
-Thấy dòng `Started AvqApplication` là xong. Nếu mã không khớp CSDL, ứng dụng sẽ dừng ngay với lỗi `Schema-validation`; chạy được chính là bằng chứng mã khớp CSDL.
+Thấy dòng `Started AvqApplication` là xong. Nếu log tiếng Việt hiện sai dấu (`?`, `�`), chạy `chcp 65001` trong PowerShell rồi chạy lại (file `backend/.mvn/jvm.config` đã đặt Maven xuất UTF-8). Nếu mã không khớp CSDL, ứng dụng sẽ dừng ngay với lỗi `Schema-validation`; chạy được chính là bằng chứng mã khớp CSDL.
 
-Chạy kiểm thử (69 test: đơn vị + tích hợp trên MySQL, tự rollback, không để lại dữ liệu):
+Chạy kiểm thử (70 test: đơn vị + tích hợp trên MySQL, tự rollback, không để lại dữ liệu):
 
 ```powershell
 .\mvnw.cmd test

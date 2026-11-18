@@ -83,16 +83,16 @@ Tổng: **117/117** phương thức trên sơ đồ có mặt trong mã với đ
 | | | `ruleBasedSize(chart, heightCm, weightKg, fitPref, fitType)` | [:21](../backend/src/main/java/service/FallbackPolicy.java#L21) |
 | `OrderExpiryScheduler` | 4.7 | *(khai báo lớp)* | [backend/src/main/java/service/OrderExpiryScheduler.java:14](../backend/src/main/java/service/OrderExpiryScheduler.java#L14) |
 | | | `expirePendingOrders()` | [:23](../backend/src/main/java/service/OrderExpiryScheduler.java#L23) |
-| `OrderService` | 4.7 | *(khai báo lớp)* | [backend/src/main/java/service/OrderService.java:35](../backend/src/main/java/service/OrderService.java#L35) |
-| | | `prepare(customerId)` | [:74](../backend/src/main/java/service/OrderService.java#L74) |
-| | | `place(customerId, req)` | [:89](../backend/src/main/java/service/OrderService.java#L89) |
-| | | `cancelByCustomer(customerId, orderCode, reason)` | [:142](../backend/src/main/java/service/OrderService.java#L142) |
-| | | `updateStatusByStaff(staffId, orderCode, to, note)` | [:161](../backend/src/main/java/service/OrderService.java#L161) |
-| | | `expireOverdue(now)` | [:185](../backend/src/main/java/service/OrderService.java#L185) |
-| | | `listByCustomer(customerId)` | [:198](../backend/src/main/java/service/OrderService.java#L198) |
-| | | `getDetail(customerId, orderCode)` | [:203](../backend/src/main/java/service/OrderService.java#L203) |
-| | | `listForStaff(status)` | [:208](../backend/src/main/java/service/OrderService.java#L208) |
-| | | `getDetailForStaff(orderCode)` | [:216](../backend/src/main/java/service/OrderService.java#L216) |
+| `OrderService` | 4.7 | *(khai báo lớp)* | [backend/src/main/java/service/OrderService.java:37](../backend/src/main/java/service/OrderService.java#L37) |
+| | | `prepare(customerId)` | [:76](../backend/src/main/java/service/OrderService.java#L76) |
+| | | `place(customerId, req)` | [:91](../backend/src/main/java/service/OrderService.java#L91) |
+| | | `cancelByCustomer(customerId, orderCode, reason)` | [:144](../backend/src/main/java/service/OrderService.java#L144) |
+| | | `updateStatusByStaff(staffId, orderCode, to, note)` | [:163](../backend/src/main/java/service/OrderService.java#L163) |
+| | | `expireOverdue(now)` | [:187](../backend/src/main/java/service/OrderService.java#L187) |
+| | | `listByCustomer(customerId)` | [:200](../backend/src/main/java/service/OrderService.java#L200) |
+| | | `getDetail(customerId, orderCode)` | [:205](../backend/src/main/java/service/OrderService.java#L205) |
+| | | `listForStaff(status)` | [:210](../backend/src/main/java/service/OrderService.java#L210) |
+| | | `getDetailForStaff(orderCode)` | [:226](../backend/src/main/java/service/OrderService.java#L226) |
 | `OrderStateMachine` | 4.7 | *(khai báo lớp)* | [backend/src/main/java/service/OrderStateMachine.java:25](../backend/src/main/java/service/OrderStateMachine.java#L25) |
 | | | `transit(order, to, staff, note)` | [:45](../backend/src/main/java/service/OrderStateMachine.java#L45) |
 | | | `nextStatuses(from)` | [:69](../backend/src/main/java/service/OrderStateMachine.java#L69) |
@@ -522,7 +522,7 @@ Chạy `.\mvnw.cmd test` trong `backend/`. Kiểm thử tích hợp chạy trên
 |---|---|---|---|
 | `service.RuleUnitTest` | 22 | Đạt | **BR09/DT-01** (0; 249.000; 350.000; 499.999 → 30.000 đ; 500.000; 520.000; 708.000 → 0 đ); **DT-04** bảng chuyển hợp lệ + 8 chuyển không hợp lệ bị từ chối, sinh mã vận đơn; **BR16** sai 5 lần khóa 15 phút, đúng thì reset; **FB-01** khớp bảng, ngoài bảng theo chiều cao gần nhất, Oversize + Vừa lùi một size, không có bảng size |
 | `service.CartAndAuthServiceTest` | 7 | Đạt | **DT-02** R2 chưa chọn biến thể, R3 vượt tồn / quá 10, R4 thêm dòng, R5 cộng dồn; đổi số lượng, xóa dòng; **BR01** đăng ký email/SĐT không trùng; **BR16** qua `AuthService` (khóa sau 5 lần sai, mật khẩu đúng vẫn bị chặn; đăng nhập đúng reset bộ đếm) |
-| `service.OrderAndPaymentServiceTest` | 13 | Đạt | **BR10** COD → Chờ xác nhận / ONLINE → Chờ thanh toán + hạn 15 phút + Payment Đang xử lý; **BR08** đổi giá sau khi đặt, đơn giữ giá cũ; **BR11** trừ kho, hoàn kho; **EX-06** hết hàng khi đặt; **BR13/DT-03** khách hủy, không hủy được khi đang giao, nhân viên hủy phải có lý do; **DT-04** lịch sử + mã vận đơn; **BR12** đơn quá hạn tự hủy và hoàn kho; **DT-05** thành công `00` → Chờ xác nhận, gửi lại `02`, thất bại `00` giữ nguyên, sai chữ ký `97`, không có đơn `01`, lệch tiền `04` → Sai lệch, **thanh toán thành công đến sau khi đơn đã tự hủy** → `02`, ghi Sai lệch, đơn vẫn Đã hủy, kho không bị trừ lại |
+| `service.OrderAndPaymentServiceTest` | 14 | Đạt | **BR10** COD → Chờ xác nhận / ONLINE → Chờ thanh toán + hạn 15 phút + Payment Đang xử lý; **BR08** đổi giá sau khi đặt, đơn giữ giá cũ; **BR11** trừ kho, hoàn kho; **EX-06** hết hàng khi đặt; **BR13/DT-03** khách hủy, không hủy được khi đang giao, nhân viên hủy phải có lý do; **DT-04** lịch sử + mã vận đơn; **UC20** danh sách đơn cho nhân viên lọc theo trạng thái (lọc trong CSDL bằng `findAll(Example, Sort)` kế thừa từ `JpaRepository`, không thêm phương thức vào `OrderRepository`); **BR12** đơn quá hạn tự hủy và hoàn kho; **DT-05** thành công `00` → Chờ xác nhận, gửi lại `02`, thất bại `00` giữ nguyên, sai chữ ký `97`, không có đơn `01`, lệch tiền `04` → Sai lệch, **thanh toán thành công đến sau khi đơn đã tự hủy** → `02`, ghi Sai lệch, đơn vẫn Đã hủy, kho không bị trừ lại |
 | `service.LastItemConcurrencyTest` | 1 | Đạt | **BR11**: 10 khách cùng lúc đặt chiếc cuối cùng → đúng 1 đơn thành công, 9 lỗi `OUT_OF_STOCK`, tồn kho về 0 |
 | `service.SizeAdvisorServiceTest` | 2 | Đạt | **FB-01** qua service: dùng bảng size, ghi `ai_inference_logs` (`fallback_used = 1`, `input_hash` 64 ký tự), lưu số đo khi khách đồng ý; sản phẩm không có bảng size |
 | `repository.RepositoryQueryTest` | 6 | Đạt | `findByEmailOrPhone`, `decreaseIfEnough`/`increase` (+ version), `search` (từ khóa, danh mục, size, giá, ẩn/hiện), truy vấn đơn theo khách / mã / quá hạn, `existsByTxnRef`, `findTopByOrderIdOrderByIdDesc`, bảng size theo thứ tự, `findBySlug` |
@@ -531,7 +531,7 @@ Chạy `.\mvnw.cmd test` trong `backend/`. Kiểm thử tích hợp chạy trên
 | `infra.ImageStorageTest` | 3 | Đạt | Lưu ảnh PNG/JPEG trả về `/uploads/...`; file giả dạng ảnh (đuôi .png nhưng nội dung HTML) bị từ chối; file rỗng, file quá 5 MB bị từ chối |
 | `service.StaffServiceTest` | 4 | Đạt | **BR02**: chủ tạo nhân viên (vai trò luôn STAFF, đăng nhập được); trùng tên đăng nhập bị từ chối; đặt lại mật khẩu và mở khóa; không đặt lại mật khẩu cho chủ cửa hàng |
 | `api.ApiSecurityTest` | 7 | Đạt | **BR03** xem sản phẩm không cần đăng nhập; **BR15** tách quyền khách/nhân viên (401/403), token giả bị từ chối; lỗi trả JSON `{code, message}`; luồng HTTP đặt hàng ONLINE → thanh toán giả lập → nhân viên giao hàng → khách không hủy được; **BR02** quản lý nhân viên chỉ OWNER (nhân viên bị 403); tải ảnh: nhân viên được, khách 403, file giả bị từ chối; **thanh toán giả lập chỉ chủ đơn** (khách khác → 404 `ORDER_NOT_FOUND`), đơn đã hủy → 409 `ORDER_NOT_PENDING` |
-| **Tổng** | **69** | **69/69 đạt** | |
+| **Tổng** | **70** | **70/70 đạt** | |
 
 Ngoài ra trên backend thật (dữ liệu thử đã dọn khỏi CSDL demo sau mỗi lần chạy):
 

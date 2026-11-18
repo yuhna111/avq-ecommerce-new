@@ -11,3 +11,9 @@ jwt:
   # Chuỗi bí mật HS256, tối thiểu 32 ký tự. Đổi thành chuỗi ngẫu nhiên của riêng bạn.
   secret: "doi-thanh-chuoi-bi-mat-ngau-nhien-dai-it-nhat-32-ky-tu"
   expiration-minutes: 30
+
+payment:
+  mock:
+    # Khóa ký HMAC-SHA512 của cổng thanh toán giả lập. Đổi thành chuỗi ngẫu nhiên của riêng bạn
+    # (bỏ trống mục này thì dùng khóa mặc định và backend ghi cảnh báo khi khởi động).
+    hash-secret: "doi-thanh-khoa-ky-cong-gia-lap-cua-ban"
