@@ -538,3 +538,11 @@ Ngoài ra trên backend thật (dữ liệu thử đã dọn khỏi CSDL demo sa
 - Kịch bản E2E 21 bước qua proxy Vite (cùng các lời gọi giao diện thực hiện): tất cả đạt.
 - Chạy giao diện thật bằng Chrome headless (puppeteer-core), 19 bước: trang chủ, tìm kiếm, chưa đăng nhập bị chuyển sang đăng nhập, gợi ý size, chọn biến thể, giỏ hàng, xác nhận đặt hàng ONLINE, cổng giả lập, thanh toán thành công, đơn của tôi, đăng xuất, nhân viên đăng nhập, xem đơn, chuyển Đang giao (sinh mã vận đơn), sản phẩm & tồn kho, bố cục điện thoại 390px không tràn ngang: tất cả đạt, 0 lỗi console.
 - Khởi động lại backend giữa lúc đặt đơn ONLINE và lúc thanh toán: đơn vẫn thanh toán được, chuyển sang Chờ xác nhận.
+
+---
+
+## 4. Hạn chế và hướng phát triển
+
+| # | Hạn chế | Lý do giữ nguyên ở bản demo | Hướng phát triển |
+|---|---|---|---|
+| H1 | Danh sách đơn của nhân viên (`OrderService.listForStaff(status)`, `AdminOrderController.list`) **chưa phân trang**: trả toàn bộ đơn khớp bộ lọc, mới nhất trước. Việc lọc theo trạng thái đã chạy trong CSDL (`WHERE status = ?`) | Dữ liệu demo chỉ vài chục đơn nên tải một lần vẫn nhanh. Phân trang buộc phải đổi chữ ký phương thức đã có trên sơ đồ 4.7, trái quy tắc giữ code ↔ design (CLAUDE.md 3.5) nếu chưa cập nhật VP | Thêm tham số `Pageable` của Spring Data (`JpaRepository` hỗ trợ sẵn): `listForStaff(status, pageable) : Page<OrderSummaryDto>`, controller nhận `page`, `size`; cập nhật sơ đồ 4.7 trong VP trước, rồi thêm điều khiển chuyển trang ở giao diện nhân viên |
